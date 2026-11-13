@@ -4,12 +4,14 @@ Normative grading rules for Android (KMP) and web (TypeScript). Samples: [cpp-mo
 
 ## Card loop (all graded templates)
 
-1. Show `prompt` and optional `code`. Hide answer controls.
-2. On second intentional interaction, show controls. Do **not** show the key yet.
-3. On submit, grade immediately; highlight correct key; show `explanation`.
-4. Advance to the next card.
+1. Show `prompt`, optional `code`, and answer controls together (no separate “think then reveal” step).
+2. On submit, grade immediately; show `explanation` (and the key on wrong answers).
+3. Correct answers auto-advance after a short beat; wrong answers wait for a single Continue.
+4. Leave a session via a top close control — not a second bottom CTA competing with Continue.
 
 True/false is `single` with two options. Optional `code` may appear on any template.
+
+`order` rows are reordered by dragging whole fields (not steppers).
 
 ## Import
 

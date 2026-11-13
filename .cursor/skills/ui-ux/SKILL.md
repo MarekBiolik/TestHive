@@ -30,12 +30,12 @@ Honour **Neon Glass** (dark midnight, electric blue/cyan, frosted glass, restrai
 
 ## Card-loop UX (product)
 
-1. Think phase — prompt (+ code); hide answer controls  
-2. Reveal controls — options / order / match / cloze (not the key yet)  
-3. Submit → immediate correct/incorrect (or self-report for `reveal`) + explanation  
-4. Next
+1. Prompt (+ code) and answer controls together  
+2. Submit → immediate grade + explanation (stronger wrong-state; correct auto-advances)  
+3. One sticky primary bottom action; leave via top close  
+4. `order`: drag whole rows
 
-Home: list decks, select one or mix, strong CTA to start.
+Home: list decks, select one or mix, strong CTA to start. Session end: adult rewarding summary (stats + Back to decks), not dual sad Exit.
 
 ## Workflow
 
