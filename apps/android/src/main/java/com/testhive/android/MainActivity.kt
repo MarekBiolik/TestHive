@@ -64,14 +64,13 @@ class MainActivity : ComponentActivity() {
                         composable("session") {
                             SessionScreen(
                                 state = session,
-                                onRevealControls = vm::revealControls,
                                 onToggleOption = vm::toggleOption,
-                                onSetOrder = vm::setOrder,
+                                onReorder = vm::setOrder,
                                 onSetMatch = vm::setMatch,
                                 onSetCloze = vm::setCloze,
                                 onRevealKnew = vm::submitReveal,
                                 onSubmit = vm::submit,
-                                onNext = { vm.next() },
+                                onNext = vm::next,
                                 onExit = {
                                     vm.exitSession()
                                     navController.popBackStack("home", inclusive = false)

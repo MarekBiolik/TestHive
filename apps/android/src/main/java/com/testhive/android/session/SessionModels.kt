@@ -3,14 +3,18 @@ package com.testhive.android.session
 import com.testhive.core.domain.QuestionRef
 
 enum class CardPhase {
-    Think,
     Answering,
     Feedback,
 }
 
 sealed class SessionUiState {
     data object Empty : SessionUiState()
-    data class Finished(val answered: Int) : SessionUiState()
+
+    data class Finished(
+        val answered: Int,
+        val correctCount: Int,
+    ) : SessionUiState()
+
     data class Active(
         val queue: List<QuestionRef>,
         val index: Int,
@@ -21,6 +25,8 @@ sealed class SessionUiState {
         val clozeAnswers: Map<String, String> = emptyMap(),
         val lastCorrect: Boolean? = null,
         val answered: Int = 0,
+        val correctCount: Int = 0,
+        val autoAdvance: Boolean = false,
     ) : SessionUiState() {
         val current: QuestionRef get() = queue[index]
         val total: Int get() = queue.size
