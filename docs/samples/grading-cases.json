@@ -1,0 +1,158 @@
+{
+  "formatVersion": 1,
+  "description": "Abstract grading fixtures shared by KMP and TypeScript unit tests. Each case supplies a minimal question-shaped payload, a submission, and the expected correct flag.",
+  "cases": [
+    {
+      "id": "single-correct",
+      "type": "single",
+      "question": {
+        "options": [
+          { "id": "a", "text": "A" },
+          { "id": "b", "text": "B" }
+        ],
+        "answer": "b"
+      },
+      "submission": "b",
+      "correct": true
+    },
+    {
+      "id": "single-wrong",
+      "type": "single",
+      "question": {
+        "options": [
+          { "id": "a", "text": "A" },
+          { "id": "b", "text": "B" }
+        ],
+        "answer": "b"
+      },
+      "submission": "a",
+      "correct": false
+    },
+    {
+      "id": "multi-set-equal-order-irrelevant",
+      "type": "multi",
+      "question": {
+        "options": [
+          { "id": "a", "text": "A" },
+          { "id": "b", "text": "B" },
+          { "id": "c", "text": "C" }
+        ],
+        "answer": ["a", "c"]
+      },
+      "submission": ["c", "a"],
+      "correct": true
+    },
+    {
+      "id": "multi-partial-is-wrong",
+      "type": "multi",
+      "question": {
+        "options": [
+          { "id": "a", "text": "A" },
+          { "id": "b", "text": "B" },
+          { "id": "c", "text": "C" }
+        ],
+        "answer": ["a", "c"]
+      },
+      "submission": ["a"],
+      "correct": false
+    },
+    {
+      "id": "order-exact",
+      "type": "order",
+      "question": {
+        "items": [
+          { "id": "1", "text": "one" },
+          { "id": "2", "text": "two" },
+          { "id": "3", "text": "three" }
+        ],
+        "answer": ["1", "2", "3"]
+      },
+      "submission": ["1", "2", "3"],
+      "correct": true
+    },
+    {
+      "id": "order-swapped-wrong",
+      "type": "order",
+      "question": {
+        "items": [
+          { "id": "1", "text": "one" },
+          { "id": "2", "text": "two" },
+          { "id": "3", "text": "three" }
+        ],
+        "answer": ["1", "2", "3"]
+      },
+      "submission": ["1", "3", "2"],
+      "correct": false
+    },
+    {
+      "id": "match-all-pairs",
+      "type": "match",
+      "question": {
+        "left": [
+          { "id": "l1", "text": "L1" },
+          { "id": "l2", "text": "L2" }
+        ],
+        "right": [
+          { "id": "r1", "text": "R1" },
+          { "id": "r2", "text": "R2" }
+        ],
+        "answer": { "l1": "r2", "l2": "r1" }
+      },
+      "submission": { "l1": "r2", "l2": "r1" },
+      "correct": true
+    },
+    {
+      "id": "match-one-wrong",
+      "type": "match",
+      "question": {
+        "left": [
+          { "id": "l1", "text": "L1" },
+          { "id": "l2", "text": "L2" }
+        ],
+        "right": [
+          { "id": "r1", "text": "R1" },
+          { "id": "r2", "text": "R2" }
+        ],
+        "answer": { "l1": "r2", "l2": "r1" }
+      },
+      "submission": { "l1": "r2", "l2": "r2" },
+      "correct": false
+    },
+    {
+      "id": "cloze-trim-casefold",
+      "type": "cloze",
+      "question": {
+        "blanks": { "fn": ["forward"] }
+      },
+      "submission": { "fn": "  Forward  " },
+      "correct": true
+    },
+    {
+      "id": "cloze-wrong-token",
+      "type": "cloze",
+      "question": {
+        "blanks": { "fn": ["forward"] }
+      },
+      "submission": { "fn": "move" },
+      "correct": false
+    },
+    {
+      "id": "reveal-self-knew",
+      "type": "reveal",
+      "question": {
+        "answerText": "Model answer"
+      },
+      "submission": { "knewIt": true },
+      "correct": true
+    },
+    {
+      "id": "reveal-self-missed",
+      "type": "reveal",
+      "question": {
+        "answerText": "Model answer"
+      },
+      "submission": { "knewIt": false },
+      "correct": false
+    }
+  ]
+}

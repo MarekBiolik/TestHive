@@ -1,0 +1,27 @@
+---
+description: After foundations, ship work as issue then PR then focused commits
+alwaysApply: true
+---
+
+# Workflow: issue → PR → commit
+
+After architecture foundations, implement work as **narrow vertical slices**, not large undocumented batches.
+
+## Loop
+
+1. **Issue** — capture the slice (use skill `to-issues` when breaking a plan/spec). Title and body in **English**. Acceptance criteria checkboxes are the agent’s done-list.
+2. **Branch + PR** — open a PR early from a focused branch; describe intent in English (skill `pr`). Title uses the same shape as commits: `type(#ISSUE): subject`. Body links/closes the issue.
+3. **Commits** — focused commits per step (`commit-after-steps`): `type(#ISSUE): subject`, then `type(#ISSUE): subject (#PR)` once the PR number exists.
+4. **Acceptance criteria** — before asking to merge (or when AC are met): check off satisfied boxes on the issue via `gh` (only criteria actually done).
+5. **Merge** — only when the user asks. Prefer squash subject `type(#ISSUE): subject (#PR)`. Do not merge/close issues or PRs unless the user explicitly requests it.
+6. **After merge** — when the user asked for merge or cleanup, or merge is already on the default branch:
+   - Delete the local feature branch and `git push origin --delete <branch>`.
+   - Remove any worktree for that branch (`git worktree remove` / `prune`).
+   - Do **not** use `git branch --merged` alone after squash merges — trust the merged PR as source of truth.
+   - Leave `backup/*` and unrelated open implement issues alone.
+   - If the user allows closing the issue: finish remaining AC checkboxes, then close.
+
+## Push vs merge
+
+- Pushing the **feature branch** so the PR stays up to date is OK when the user is working through PRs (ask if unclear).
+- Do **not** push directly to the default branch, force-push shared history, or merge without an explicit user request.

@@ -1,0 +1,168 @@
+{
+  "formatVersion": 1,
+  "id": "cpp-modern",
+  "title": "Modern C++ essentials",
+  "language": "en",
+  "description": "Small practice deck for move semantics, smart pointers, lifetime, and compile-time features.",
+  "questions": [
+    {
+      "id": "move-from-state",
+      "type": "single",
+      "prompt": "After `std::string b = std::move(a);`, what is true about `a`?",
+      "code": {
+        "language": "cpp",
+        "source": "std::string a = \"hello\";\nstd::string b = std::move(a);\n// use of a?"
+      },
+      "options": [
+        { "id": "a", "text": "a is guaranteed empty and safe to read as empty" },
+        { "id": "b", "text": "a is in a valid but unspecified state; only assign/destroy are always safe without further checks" },
+        { "id": "c", "text": "a is destroyed and must not be touched at all" },
+        { "id": "d", "text": "a still holds \"hello\"; move copies by default" }
+      ],
+      "answer": "b",
+      "explanation": "Moved-from objects must be left valid; the standard does not require a specific value for std::string."
+    },
+    {
+      "id": "rule-of-zero",
+      "type": "single",
+      "prompt": "What does the Rule of Zero recommend for many modern C++ types?",
+      "options": [
+        { "id": "a", "text": "Always write destructor, copy, and move for every class" },
+        { "id": "b", "text": "Prefer types that manage no raw resources so special members can be defaulted or omitted" },
+        { "id": "c", "text": "Never use move constructors" },
+        { "id": "d", "text": "Delete all special members and use only placement new" }
+      ],
+      "answer": "b",
+      "explanation": "Compose RAII members (string, vector, unique_ptr) and let the compiler generate special members."
+    },
+    {
+      "id": "smart-ptr-ownership",
+      "type": "multi",
+      "prompt": "Which statements about std::unique_ptr and std::shared_ptr are correct?",
+      "options": [
+        { "id": "a", "text": "unique_ptr expresses exclusive ownership and is movable but not copyable" },
+        { "id": "b", "text": "shared_ptr shares ownership via reference counting" },
+        { "id": "c", "text": "Copying a unique_ptr duplicates the managed object automatically" },
+        { "id": "d", "text": "make_shared can reduce allocations compared with shared_ptr(new T)" }
+      ],
+      "answer": ["a", "b", "d"],
+      "explanation": "unique_ptr is move-only; shared_ptr shares ownership; make_shared typically allocates control block and object together."
+    },
+    {
+      "id": "string-view-lifetime",
+      "type": "single",
+      "prompt": "What is the main lifetime risk with std::string_view?",
+      "code": {
+        "language": "cpp",
+        "source": "std::string_view v = std::string{\"temp\"};\n// v now?"
+      },
+      "options": [
+        { "id": "a", "text": "string_view always extends the temporary's lifetime" },
+        { "id": "b", "text": "string_view may dangle if it outlives the character sequence it views" },
+        { "id": "c", "text": "string_view copies characters like std::string" },
+        { "id": "d", "text": "string_view cannot bind to temporaries" }
+      ],
+      "answer": "b",
+      "explanation": "string_view is non-owning; binding to a temporary string leaves a dangling view after the full-expression."
+    },
+    {
+      "id": "ub-examples",
+      "type": "multi",
+      "prompt": "Which of the following are undefined behavior in C++?",
+      "options": [
+        { "id": "a", "text": "Signed integer overflow" },
+        { "id": "b", "text": "Using an object after its lifetime ended (e.g. dangling pointer)" },
+        { "id": "c", "text": "Throwing an exception of a user-defined type" },
+        { "id": "d", "text": "Data race on a non-atomic shared variable" }
+      ],
+      "answer": ["a", "b", "d"],
+      "explanation": "Signed overflow, use-after-lifetime, and data races are UB; throwing user types is fine."
+    },
+    {
+      "id": "constexpr-vs-consteval",
+      "type": "single",
+      "prompt": "How does consteval differ from constexpr on a function?",
+      "options": [
+        { "id": "a", "text": "consteval functions must produce a constant; they cannot be called at runtime" },
+        { "id": "b", "text": "constexpr forbids compile-time evaluation" },
+        { "id": "c", "text": "They are identical synonyms since C++20" },
+        { "id": "d", "text": "consteval only applies to variables, not functions" }
+      ],
+      "answer": "a",
+      "explanation": "consteval means immediate function: every call must be a compile-time constant expression."
+    },
+    {
+      "id": "object-lifetime-order",
+      "type": "order",
+      "prompt": "Order these events for a block-scope object from earliest to latest.",
+      "items": [
+        { "id": "alloc", "text": "Storage obtained for the object" },
+        { "id": "ctor", "text": "Constructor completes; lifetime begins" },
+        { "id": "use", "text": "Member functions may be called" },
+        { "id": "dtor", "text": "Destructor runs; lifetime ends" }
+      ],
+      "answer": ["alloc", "ctor", "use", "dtor"],
+      "explanation": "Lifetime starts when initialization finishes and ends when the destructor starts."
+    },
+    {
+      "id": "construction-order",
+      "type": "order",
+      "prompt": "For a derived object, order construction from earliest to latest.",
+      "items": [
+        { "id": "base", "text": "Base class subobject constructors" },
+        { "id": "members", "text": "Non-static data member constructors (in declaration order)" },
+        { "id": "derived", "text": "Derived constructor body" }
+      ],
+      "answer": ["base", "members", "derived"],
+      "explanation": "Bases, then members in declaration order, then the constructor body."
+    },
+    {
+      "id": "match-raii-terms",
+      "type": "match",
+      "prompt": "Match each term to the best description.",
+      "left": [
+        { "id": "raii", "text": "RAII" },
+        { "id": "elision", "text": "Copy elision" },
+        { "id": "nrvo", "text": "NRVO" }
+      ],
+      "right": [
+        { "id": "r1", "text": "Resource lifetime tied to object lifetime via ctor/dtor" },
+        { "id": "r2", "text": "Omitting copy/move of temporaries under permitted rules" },
+        { "id": "r3", "text": "Named return value optimization for a local returned by value" }
+      ],
+      "answer": {
+        "raii": "r1",
+        "elision": "r2",
+        "nrvo": "r3"
+      },
+      "explanation": "RAII binds resources to objects; elision/NRVO avoid unnecessary copies of return values."
+    },
+    {
+      "id": "forward-cloze",
+      "type": "cloze",
+      "prompt": "Perfect forwarding typically uses std::{{fn}} on a forwarding reference T&&.",
+      "blanks": {
+        "fn": ["forward", "Forward"]
+      },
+      "choices": ["forward", "move", "ref", "decay"],
+      "explanation": "std::forward preserves value category; std::move unconditionally casts to rvalue."
+    },
+    {
+      "id": "emplace-cloze",
+      "type": "cloze",
+      "prompt": "To construct an element in-place in a std::vector, prefer v.{{method}}(...) over push_back of a temporary when it avoids an extra move.",
+      "blanks": {
+        "method": ["emplace_back"]
+      },
+      "choices": ["emplace_back", "push_back", "insert", "emplace"],
+      "explanation": "emplace_back forwards arguments to the element constructor in-place."
+    },
+    {
+      "id": "reveal-rule-of-five",
+      "type": "reveal",
+      "prompt": "In your own words: when should you apply the Rule of Five instead of the Rule of Zero?",
+      "answerText": "When your class directly manages a resource (raw pointer, socket, ownership not already handled by a member), you typically need a destructor and carefully defined copy/move operations (or =delete) — the Rule of Five. Prefer Rule of Zero by using RAII members so those special members stay defaulted.",
+      "explanation": "Self-check: resource-owning classes need explicit special members; otherwise compose standard RAII types."
+    }
+  ]
+}
