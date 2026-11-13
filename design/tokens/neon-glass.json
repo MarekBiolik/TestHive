@@ -1,0 +1,72 @@
+{
+  "themeId": "neon-glass",
+  "formatVersion": 1,
+  "color": {
+    "blue": { "500": "#3B82F6" },
+    "cyan": { "400": "#22D3EE" },
+    "navy": {
+      "950": "#020617",
+      "900": "#0B1220",
+      "800": "#111827"
+    },
+    "slate": {
+      "400": "#94A3B8",
+      "50": "#F8FAFC",
+      "600": "#334155"
+    },
+    "emerald": { "400": "#34D399" },
+    "red": { "400": "#F87171" }
+  },
+  "semantic": {
+    "bg": {
+      "canvas": "{color.navy.950}",
+      "surface": "{color.navy.900}",
+      "glass": "{color.navy.800}"
+    },
+    "text": {
+      "primary": "{color.slate.50}",
+      "secondary": "{color.slate.400}"
+    },
+    "action": {
+      "primary": "{color.blue.500}",
+      "accent": "{color.cyan.400}"
+    },
+    "border": {
+      "glass": "{color.slate.600}"
+    },
+    "feedback": {
+      "success": "{color.emerald.400}",
+      "error": "{color.red.400}"
+    }
+  },
+  "space": {
+    "1": 4,
+    "2": 8,
+    "3": 12,
+    "4": 16,
+    "5": 20,
+    "6": 24,
+    "8": 32,
+    "10": 40,
+    "12": 48
+  },
+  "radius": {
+    "md": 12,
+    "lg": 16,
+    "xl": 24
+  },
+  "type": {
+    "titleLg": { "size": 28, "lineHeight": 34 },
+    "titleMd": { "size": 20, "lineHeight": 28 },
+    "bodyMd": { "size": 16, "lineHeight": 24 },
+    "codeSm": { "size": 13, "lineHeight": 20 },
+    "labelSm": { "size": 12, "lineHeight": 16 }
+  },
+  "effect": {
+    "glow": {
+      "cta": { "color": "#3B82F6", "alpha": 0.45 },
+      "selected": { "color": "#22D3EE", "alpha": 0.35 },
+      "success": { "color": "#34D399", "alpha": 0.3 }
+    }
+  }
+}
