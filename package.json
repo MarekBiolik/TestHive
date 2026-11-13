@@ -1,0 +1,9 @@
+{
+  "name": "testhive",
+  "private": true,
+  "scripts": {
+    "web:dev": "pnpm --filter @testhive/web dev",
+    "web:build": "pnpm --filter @testhive/web build",
+    "web:preview": "pnpm --filter @testhive/web preview"
+  }
+}
