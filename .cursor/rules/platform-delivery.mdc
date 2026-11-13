@@ -1,0 +1,14 @@
+---
+description: When a slice spans shared core and clients, follow platform-delivery (core-first → platforms → test)
+alwaysApply: true
+---
+
+# Platform delivery
+
+When implementing work that touches **both** the shared seam (`core/`) **and** one or more clients (`apps/android`, `apps/web`, later `apps/ios`):
+
+1. Follow the project skill `platform-delivery` (core first → platforms → tests).
+2. Tests are **required** (core unit; Android emulator smoke; web build when web changed). Empty `adb devices` → start the AVD via `android-emulator`. If a gate cannot run: **stop and ask**. No skips.
+3. Overview: [docs/conventions/agent-dev-environment.md](../../docs/conventions/agent-dev-environment.md).
+
+Single-area edits (only core, only one app, or docs-only) do not require the full fan-out.
