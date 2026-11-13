@@ -31,3 +31,4 @@ Reading order for newcomers and agents.
 - [Git workflow](conventions/git-workflow.md)
 - [Testing](conventions/testing.md)
 - [CI/CD](conventions/ci-cd.md)
+- [Agent dev environment](conventions/agent-dev-environment.md)
