@@ -34,12 +34,20 @@ fun GlassPanel(
     }
 }
 
+enum class AnswerRowTone {
+    Neutral,
+    Selected,
+    Correct,
+    Incorrect,
+}
+
 @Composable
 fun NeonPrimaryButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    containerColor: Color = NeonGlassTokens.ActionPrimary,
 ) {
     Button(
         onClick = onClick,
@@ -49,12 +57,12 @@ fun NeonPrimaryButton(
             .shadow(
                 elevation = if (enabled) 12.dp else 0.dp,
                 shape = ButtonShape,
-                ambientColor = NeonGlassTokens.ActionPrimary.copy(alpha = 0.45f),
-                spotColor = NeonGlassTokens.ActionPrimary.copy(alpha = 0.45f),
+                ambientColor = containerColor.copy(alpha = 0.45f),
+                spotColor = containerColor.copy(alpha = 0.45f),
             ),
         shape = ButtonShape,
         colors = ButtonDefaults.buttonColors(
-            containerColor = NeonGlassTokens.ActionPrimary,
+            containerColor = containerColor,
             contentColor = NeonGlassTokens.TextPrimary,
             disabledContainerColor = NeonGlassTokens.GlassSolid,
             disabledContentColor = NeonGlassTokens.TextSecondary,
@@ -69,21 +77,40 @@ fun NeonAnswerRow(
     text: String,
     selected: Boolean,
     modifier: Modifier = Modifier,
+    tone: AnswerRowTone = if (selected) AnswerRowTone.Selected else AnswerRowTone.Neutral,
+    enabled: Boolean = true,
     onClick: () -> Unit,
 ) {
-    val border = if (selected) NeonGlassTokens.ActionAccent else NeonGlassTokens.BorderGlass
-    val bg = if (selected) NeonGlassTokens.ActionAccent.copy(alpha = 0.12f) else NeonGlassTokens.Glass
+    val border = when (tone) {
+        AnswerRowTone.Correct -> NeonGlassTokens.FeedbackSuccess
+        AnswerRowTone.Incorrect -> NeonGlassTokens.FeedbackError
+        AnswerRowTone.Selected -> NeonGlassTokens.ActionAccent
+        AnswerRowTone.Neutral -> NeonGlassTokens.BorderGlass
+    }
+    val bg = when (tone) {
+        AnswerRowTone.Correct -> NeonGlassTokens.FeedbackSuccess.copy(alpha = 0.18f)
+        AnswerRowTone.Incorrect -> NeonGlassTokens.FeedbackError.copy(alpha = 0.18f)
+        AnswerRowTone.Selected -> NeonGlassTokens.ActionAccent.copy(alpha = 0.12f)
+        AnswerRowTone.Neutral -> NeonGlassTokens.Glass
+    }
+    val glow = when (tone) {
+        AnswerRowTone.Correct -> NeonGlassTokens.FeedbackSuccess
+        AnswerRowTone.Incorrect -> NeonGlassTokens.FeedbackError
+        AnswerRowTone.Selected -> NeonGlassTokens.ActionAccent
+        AnswerRowTone.Neutral -> Color.Transparent
+    }
     Button(
         onClick = onClick,
+        enabled = enabled,
         modifier = modifier
             .fillMaxWidth()
             .then(
-                if (selected) {
+                if (tone != AnswerRowTone.Neutral) {
                     Modifier.shadow(
                         elevation = 10.dp,
                         shape = RoundedCornerShape(12.dp),
-                        ambientColor = NeonGlassTokens.ActionAccent.copy(alpha = 0.35f),
-                        spotColor = NeonGlassTokens.ActionAccent.copy(alpha = 0.35f),
+                        ambientColor = glow.copy(alpha = 0.35f),
+                        spotColor = glow.copy(alpha = 0.35f),
                     )
                 } else {
                     Modifier
@@ -93,9 +120,11 @@ fun NeonAnswerRow(
         colors = ButtonDefaults.buttonColors(
             containerColor = bg,
             contentColor = NeonGlassTokens.TextPrimary,
+            disabledContainerColor = bg,
+            disabledContentColor = NeonGlassTokens.TextPrimary,
         ),
         border = androidx.compose.foundation.BorderStroke(
-            width = if (selected) 2.dp else 1.dp,
+            width = if (tone == AnswerRowTone.Neutral) 1.dp else 2.dp,
             color = border,
         ),
     ) {

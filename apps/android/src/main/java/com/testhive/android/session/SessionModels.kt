@@ -26,7 +26,6 @@ sealed class SessionUiState {
         val lastCorrect: Boolean? = null,
         val answered: Int = 0,
         val correctCount: Int = 0,
-        val autoAdvance: Boolean = false,
     ) : SessionUiState() {
         val current: QuestionRef get() = queue[index]
         val total: Int get() = queue.size

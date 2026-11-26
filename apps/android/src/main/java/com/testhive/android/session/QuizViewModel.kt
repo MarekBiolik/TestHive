@@ -1,7 +1,6 @@
 package com.testhive.android.session
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.testhive.android.AppContainer
 import com.testhive.core.domain.AnswerSubmission
 import com.testhive.core.domain.ClozeQuestion
@@ -14,13 +13,10 @@ import com.testhive.core.domain.SingleQuestion
 import com.testhive.core.grading.Grader
 import com.testhive.core.library.selectedQuestions
 import com.testhive.core.session.SessionQueue
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
 class QuizViewModel(
     private val container: AppContainer,
@@ -33,8 +29,6 @@ class QuizViewModel(
 
     private val _session = MutableStateFlow<SessionUiState>(SessionUiState.Empty)
     val session: StateFlow<SessionUiState> = _session.asStateFlow()
-
-    private var autoAdvanceJob: Job? = null
 
     init {
         refreshDecks()
@@ -55,7 +49,6 @@ class QuizViewModel(
     }
 
     fun startSession() {
-        autoAdvanceJob?.cancel()
         val ids = _selected.value
         if (ids.isEmpty()) return
         val questions = container.decks.selectedQuestions(ids)
@@ -145,7 +138,6 @@ class QuizViewModel(
     }
 
     private fun gradeAndFeedback(submission: AnswerSubmission) {
-        autoAdvanceJob?.cancel()
         val active = _session.value as? SessionUiState.Active ?: return
         val ref = active.current
         val result = Grader.grade(ref.question, submission)
@@ -161,18 +153,10 @@ class QuizViewModel(
             lastCorrect = result.correct,
             answered = active.answered + 1,
             correctCount = correctCount,
-            autoAdvance = result.correct,
         )
-        if (result.correct) {
-            autoAdvanceJob = viewModelScope.launch {
-                delay(850)
-                next()
-            }
-        }
     }
 
     fun next() {
-        autoAdvanceJob?.cancel()
         _session.update { state ->
             val active = state as? SessionUiState.Active ?: return@update state
             val nextIndex = active.index + 1
@@ -193,7 +177,6 @@ class QuizViewModel(
     }
 
     fun exitSession() {
-        autoAdvanceJob?.cancel()
         _session.value = SessionUiState.Empty
     }
 }
