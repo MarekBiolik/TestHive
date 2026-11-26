@@ -216,8 +216,7 @@ private fun ActiveSession(
             correct = state.lastCorrect,
             showCheck = q !is RevealQuestion,
             onSubmit = onSubmit,
-            onNext = onNext,
-            onMarkEasy = onMarkEasy,
+            onGotIt = onMarkEasy,
         )
     }
 }
@@ -228,8 +227,7 @@ private fun FeedbackActionBar(
     correct: Boolean?,
     showCheck: Boolean,
     onSubmit: () -> Unit,
-    onNext: () -> Unit,
-    onMarkEasy: () -> Unit,
+    onGotIt: () -> Unit,
 ) {
     when (phase) {
         CardPhase.Answering -> {
@@ -250,30 +248,30 @@ private fun FeedbackActionBar(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(accent.copy(alpha = 0.16f))
+                    .background(NeonGlassTokens.Canvas.copy(alpha = 0.96f))
                     .border(
                         width = 1.dp,
-                        color = accent.copy(alpha = 0.45f),
-                        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+                        color = accent.copy(alpha = 0.35f),
+                        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
                     )
-                    .padding(horizontal = 20.dp, vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                    .padding(horizontal = 20.dp, vertical = 18.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 Text(
-                    text = if (ok) "Correct!" else "Incorrect",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
+                    text = if (ok) "Correct" else "Incorrect",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Medium,
                     color = accent,
                 )
                 NeonPrimaryButton(
-                    text = "Easy / Got it",
-                    onClick = onMarkEasy,
-                    containerColor = NeonGlassTokens.GlassSolid,
-                )
-                NeonPrimaryButton(
-                    text = "Continue",
-                    onClick = onNext,
+                    text = "Got it",
+                    onClick = onGotIt,
                     containerColor = accent,
+                )
+                Text(
+                    text = "Hides this card until you reset progress",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = NeonGlassTokens.TextSecondary,
                 )
             }
         }

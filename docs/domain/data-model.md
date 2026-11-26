@@ -43,7 +43,7 @@ Entity outline only — not a database schema. Local persistence technology is c
 | `wrongCount` | |
 | `lastResult` | correct / wrong |
 | `lastAnsweredAt` | |
-| `mastered` | When true, card is excluded from sessions until deck progress is reset (UI: Easy / Got it) |
+| `mastered` | When true, card is excluded from sessions until deck progress is reset (UI: Got it) |
 
 Unseen questions have no progress row (or equivalent empty state).
 

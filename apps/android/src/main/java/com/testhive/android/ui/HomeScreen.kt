@@ -51,7 +51,7 @@ fun HomeScreen(
     ) {
         Text("Keep learning.", style = MaterialTheme.typography.headlineLarge)
         Text(
-            "Pick a deck or mix — short cards, immediate feedback. Mark Easy / Got it in a session to hide a card until you reset progress.",
+            "Pick a deck or mix — short cards, immediate feedback. Tap Got it to hide a card until you reset progress.",
             style = MaterialTheme.typography.bodyMedium,
         )
         if (importMessage != null) {
@@ -65,7 +65,7 @@ fun HomeScreen(
         }
         if (selectedIds.isNotEmpty() && selectionStats.total > 0) {
             Text(
-                "${selectionStats.remaining} remaining · ${selectionStats.mastered} easy / got it · ${selectionStats.total} total",
+                "${selectionStats.remaining} remaining · ${selectionStats.mastered} got it · ${selectionStats.total} total",
                 style = MaterialTheme.typography.labelSmall,
                 color = NeonGlassTokens.ActionAccent,
             )
