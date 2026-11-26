@@ -102,6 +102,7 @@ class FileProgressStore(
                     wrongCount = row.wrongCount,
                     lastResult = row.lastResult?.let { LastResult.valueOf(it) },
                     lastAnsweredAtEpochMs = row.lastAnsweredAtEpochMs,
+                    mastered = row.mastered,
                 )
             }
         }
@@ -119,6 +120,7 @@ class FileProgressStore(
                     wrongCount = it.wrongCount,
                     lastResult = it.lastResult?.name,
                     lastAnsweredAtEpochMs = it.lastAnsweredAtEpochMs,
+                    mastered = it.mastered,
                 )
             },
         )
@@ -141,6 +143,22 @@ class FileProgressStore(
             wrongCount = (prev?.wrongCount ?: 0) + if (correct) 0 else 1,
             lastResult = if (correct) LastResult.Correct else LastResult.Wrong,
             lastAnsweredAtEpochMs = answeredAtEpochMs,
+            mastered = prev?.mastered ?: false,
+        )
+        persist()
+    }
+
+    override fun markMastered(deckId: String, questionId: String, answeredAtEpochMs: Long) {
+        val k = key(deckId, questionId)
+        val prev = rows[k]
+        rows[k] = QuestionProgress(
+            deckId = deckId,
+            questionId = questionId,
+            correctCount = prev?.correctCount ?: 0,
+            wrongCount = prev?.wrongCount ?: 0,
+            lastResult = prev?.lastResult,
+            lastAnsweredAtEpochMs = answeredAtEpochMs,
+            mastered = true,
         )
         persist()
     }
@@ -162,4 +180,5 @@ private data class ProgressRow(
     val wrongCount: Int,
     val lastResult: String? = null,
     val lastAnsweredAtEpochMs: Long? = null,
+    val mastered: Boolean = false,
 )

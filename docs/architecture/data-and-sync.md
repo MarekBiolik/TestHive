@@ -31,9 +31,9 @@ Cross-device sync is **out of scope**. Android and web do not share progress. Re
 
 Key: `deckId` + `questionId`.
 
-Fields (conceptual): `correctCount`, `wrongCount`, `lastResult`, `lastAnsweredAt`.
+Fields (conceptual): `correctCount`, `wrongCount`, `lastResult`, `lastAnsweredAt`, `mastered`.
 
-Removing a deck removes its progress rows.
+Removing a deck (or **Reset progress** for selected decks) removes its progress rows, including mastered flags.
 
 ## Related
 

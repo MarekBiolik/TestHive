@@ -19,6 +19,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
+data class SelectionStats(
+    val total: Int = 0,
+    val mastered: Int = 0,
+) {
+    val remaining: Int get() = (total - mastered).coerceAtLeast(0)
+}
+
 class QuizViewModel(
     private val container: AppContainer,
 ) : ViewModel() {
@@ -27,6 +34,9 @@ class QuizViewModel(
 
     private val _selected = MutableStateFlow<Set<String>>(emptySet())
     val selected: StateFlow<Set<String>> = _selected.asStateFlow()
+
+    private val _selectionStats = MutableStateFlow(SelectionStats())
+    val selectionStats: StateFlow<SelectionStats> = _selectionStats.asStateFlow()
 
     private val _session = MutableStateFlow<SessionUiState>(SessionUiState.Empty)
     val session: StateFlow<SessionUiState> = _session.asStateFlow()
@@ -44,6 +54,23 @@ class QuizViewModel(
         if (_selected.value.isEmpty() && list.isNotEmpty()) {
             _selected.value = setOf(list.first().id)
         }
+        refreshSelectionStats()
+    }
+
+    private fun refreshSelectionStats() {
+        val ids = _selected.value
+        if (ids.isEmpty()) {
+            _selectionStats.value = SelectionStats()
+            return
+        }
+        val questions = container.decks.selectedQuestions(ids)
+        val progress = container.progress.allForDecks(ids)
+        val masteredKeys = progress
+            .filter { it.mastered }
+            .map { it.deckId to it.questionId }
+            .toSet()
+        val mastered = questions.count { (it.deckId to it.question.id) in masteredKeys }
+        _selectionStats.value = SelectionStats(total = questions.size, mastered = mastered)
     }
 
     fun importDeckJson(text: String) {
@@ -51,6 +78,7 @@ class QuizViewModel(
             is DeckImportResult.Ok -> {
                 refreshDecks()
                 _selected.update { it + result.deck.id }
+                refreshSelectionStats()
                 _importMessage.value = "Imported “${result.deck.title}” (${result.deck.questions.size} questions)."
             }
             is DeckImportResult.Err -> {
@@ -67,6 +95,14 @@ class QuizViewModel(
         _selected.update { cur ->
             if (id in cur) cur - id else cur + id
         }
+        refreshSelectionStats()
+    }
+
+    fun resetSelectedProgress() {
+        val ids = _selected.value
+        if (ids.isEmpty()) return
+        container.progress.resetDecks(ids)
+        refreshSelectionStats()
     }
 
     fun startSession() {
@@ -80,6 +116,29 @@ class QuizViewModel(
         } else {
             activeForIndex(queue, index = 0, answered = 0, correctCount = 0)
         }
+    }
+
+    fun toggleGotIt() {
+        _session.update { state ->
+            val active = state as? SessionUiState.Active ?: return@update state
+            if (active.phase != CardPhase.Feedback) return@update state
+            active.copy(gotItChecked = !active.gotItChecked)
+        }
+    }
+
+    fun continueFromFeedback() {
+        val active = _session.value as? SessionUiState.Active ?: return
+        if (active.phase != CardPhase.Feedback) return
+        if (active.gotItChecked) {
+            val ref = active.current
+            container.progress.markMastered(
+                deckId = ref.deckId,
+                questionId = ref.question.id,
+                answeredAtEpochMs = System.currentTimeMillis(),
+            )
+            refreshSelectionStats()
+        }
+        next()
     }
 
     private fun activeForIndex(
@@ -97,6 +156,7 @@ class QuizViewModel(
             orderIds = orderSeed,
             answered = answered,
             correctCount = correctCount,
+            gotItChecked = false,
         )
     }
 
