@@ -272,11 +272,13 @@ private fun FeedbackActionBar(
                     fontWeight = FontWeight.SemiBold,
                     color = accent,
                 )
-                GotItCheckRow(
-                    checked = gotItChecked,
-                    accent = accent,
-                    onToggle = onToggleGotIt,
-                )
+                if (ok) {
+                    GotItCheckRow(
+                        checked = gotItChecked,
+                        accent = accent,
+                        onToggle = onToggleGotIt,
+                    )
+                }
                 NeonPrimaryButton(
                     text = "Continue",
                     onClick = onContinue,
