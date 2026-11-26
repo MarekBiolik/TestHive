@@ -45,7 +45,6 @@ fun SessionScreen(
     onSetCloze: (String, String) -> Unit,
     onRevealKnew: (Boolean) -> Unit,
     onSubmit: () -> Unit,
-    onNext: () -> Unit,
     onMarkEasy: () -> Unit = {},
     onExit: () -> Unit,
 ) {
@@ -73,7 +72,6 @@ fun SessionScreen(
                 onSetCloze = onSetCloze,
                 onRevealKnew = onRevealKnew,
                 onSubmit = onSubmit,
-                onNext = onNext,
                 onMarkEasy = onMarkEasy,
                 onExit = onExit,
             )
@@ -139,7 +137,6 @@ private fun ActiveSession(
     onSetCloze: (String, String) -> Unit,
     onRevealKnew: (Boolean) -> Unit,
     onSubmit: () -> Unit,
-    onNext: () -> Unit,
     onMarkEasy: () -> Unit,
     onExit: () -> Unit,
 ) {

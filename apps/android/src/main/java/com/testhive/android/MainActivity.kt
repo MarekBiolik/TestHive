@@ -94,7 +94,6 @@ class MainActivity : ComponentActivity() {
                                 onSetCloze = vm::setCloze,
                                 onRevealKnew = vm::submitReveal,
                                 onSubmit = vm::submit,
-                                onNext = vm::next,
                                 onMarkEasy = vm::markEasyAndNext,
                                 onExit = {
                                     vm.exitSession()
