@@ -1,0 +1,5236 @@
+{
+  "formatVersion": 1,
+  "id": "cpp-senior-interview",
+  "title": "Senior C++ interview",
+  "language": "en",
+  "description": "Senior-level C++ interview bank (~200 cards) covering ownership, modern C++17/20, concurrency/atomics, low-latency systems, profiling, and system-design topics aligned with a C++ interview study guide.",
+  "questions": [
+    {
+      "id": "ptr-vs-ref-null",
+      "type": "single",
+      "prompt": "Which statement about C++ pointers vs references is correct?",
+      "options": [
+        {
+          "id": "a",
+          "text": "A reference may be null and rebound later"
+        },
+        {
+          "id": "b",
+          "text": "A pointer stores an address, may be null/uninitialized, and can be reseated"
+        },
+        {
+          "id": "c",
+          "text": "A reference has independent storage identical to a pointer"
+        },
+        {
+          "id": "d",
+          "text": "Pointers are always automatically dereferenced"
+        }
+      ],
+      "answer": "b",
+      "explanation": "References must bind to a valid object and cannot be reseated; pointers hold addresses and may be null."
+    },
+    {
+      "id": "new-vs-malloc",
+      "type": "single",
+      "prompt": "What is a key difference between operator new and malloc in C++?",
+      "options": [
+        {
+          "id": "a",
+          "text": "malloc calls constructors; new does not"
+        },
+        {
+          "id": "b",
+          "text": "new is typed, invokes constructors, and typically throws std::bad_alloc on failure"
+        },
+        {
+          "id": "c",
+          "text": "new returns void* and never throws"
+        },
+        {
+          "id": "d",
+          "text": "malloc computes object size automatically from the type"
+        }
+      ],
+      "answer": "b",
+      "explanation": "new is an operator that constructs objects; malloc is a C function returning void* without constructors."
+    },
+    {
+      "id": "new-forms",
+      "type": "multi",
+      "prompt": "Which forms of allocation/construction are valid C++ new expressions?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Throwing new: new T"
+        },
+        {
+          "id": "b",
+          "text": "Nothrow new: new (std::nothrow) T"
+        },
+        {
+          "id": "c",
+          "text": "Placement new: new (ptr) T"
+        },
+        {
+          "id": "d",
+          "text": "Garbage-collected new: new (std::gc) T"
+        }
+      ],
+      "answer": [
+        "a",
+        "b",
+        "c"
+      ],
+      "explanation": "C++ has throwing, nothrow, and placement new; there is no standard std::gc new."
+    },
+    {
+      "id": "make-shared-vs-new",
+      "type": "single",
+      "prompt": "Why is std::make_shared often preferred over shared_ptr<T>(new T)?",
+      "options": [
+        {
+          "id": "a",
+          "text": "make_shared disables RTTI"
+        },
+        {
+          "id": "b",
+          "text": "It typically allocates object and control block together and is exception-safer"
+        },
+        {
+          "id": "c",
+          "text": "make_shared makes the pointer unique_ptr-compatible only"
+        },
+        {
+          "id": "d",
+          "text": "shared_ptr(new T) never allocates a control block"
+        }
+      ],
+      "answer": "b",
+      "explanation": "make_shared can do one allocation and avoids leaks if construction throws between new and shared_ptr ownership."
+    },
+    {
+      "id": "smart-ptr-facts",
+      "type": "multi",
+      "prompt": "Which statements about standard smart pointers are correct?",
+      "options": [
+        {
+          "id": "a",
+          "text": "unique_ptr models exclusive ownership and is move-only"
+        },
+        {
+          "id": "b",
+          "text": "shared_ptr shares ownership via a reference count"
+        },
+        {
+          "id": "c",
+          "text": "weak_ptr participates in ownership and keeps the object alive"
+        },
+        {
+          "id": "d",
+          "text": "auto_ptr is deprecated/removed and should not be used in modern code"
+        }
+      ],
+      "answer": [
+        "a",
+        "b",
+        "d"
+      ],
+      "explanation": "weak_ptr observes without owning; auto_ptr is obsolete."
+    },
+    {
+      "id": "weak-ptr-role",
+      "type": "single",
+      "prompt": "What problem does std::weak_ptr primarily solve with shared_ptr graphs?",
+      "options": [
+        {
+          "id": "a",
+          "text": "It accelerates atomic reference counting"
+        },
+        {
+          "id": "b",
+          "text": "It breaks ownership cycles by observing without extending lifetime"
+        },
+        {
+          "id": "c",
+          "text": "It replaces unique_ptr for arrays"
+        },
+        {
+          "id": "d",
+          "text": "It makes shared_ptr copy-free"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Cycles of shared_ptr leak; weak_ptr breaks the cycle while allowing lock()/expired checks."
+    },
+    {
+      "id": "raii-def",
+      "type": "single",
+      "prompt": "What does RAII mean in modern C++ practice?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Resources are acquired in constructors and released in destructors tied to object lifetime"
+        },
+        {
+          "id": "b",
+          "text": "All resources must be freed manually in main"
+        },
+        {
+          "id": "c",
+          "text": "Only heap memory may use constructors"
+        },
+        {
+          "id": "d",
+          "text": "Destructors are forbidden for file handles"
+        }
+      ],
+      "answer": "a",
+      "explanation": "RAII binds resource lifetime to object lifetime via ctor/dtor (and move semantics)."
+    },
+    {
+      "id": "cast-types",
+      "type": "match",
+      "prompt": "Match each cast to its characteristic.",
+      "left": [
+        {
+          "id": "dyn",
+          "text": "dynamic_cast"
+        },
+        {
+          "id": "stat",
+          "text": "static_cast"
+        },
+        {
+          "id": "cst",
+          "text": "const_cast"
+        },
+        {
+          "id": "rei",
+          "text": "reinterpret_cast"
+        }
+      ],
+      "right": [
+        {
+          "id": "r1",
+          "text": "Runtime-checked polymorphic cast (RTTI)"
+        },
+        {
+          "id": "r2",
+          "text": "Compile-time conversion among related types"
+        },
+        {
+          "id": "r3",
+          "text": "Adds/removes const/volatile"
+        },
+        {
+          "id": "r4",
+          "text": "Reinterprets the bit pattern / unrelated pointer types"
+        }
+      ],
+      "answer": {
+        "dyn": "r1",
+        "stat": "r2",
+        "cst": "r3",
+        "rei": "r4"
+      },
+      "explanation": "Prefer C++ casts over C-style casts for intent and safety."
+    },
+    {
+      "id": "class-vs-struct",
+      "type": "single",
+      "prompt": "In C++, what is the language difference between class and struct?",
+      "options": [
+        {
+          "id": "a",
+          "text": "struct cannot have methods"
+        },
+        {
+          "id": "b",
+          "text": "Default member and base access: private for class, public for struct"
+        },
+        {
+          "id": "c",
+          "text": "struct cannot inherit"
+        },
+        {
+          "id": "d",
+          "text": "class always has a vtable"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Both can have methods, ctors, and inheritance; defaults differ."
+    },
+    {
+      "id": "process-vs-thread",
+      "type": "single",
+      "prompt": "Why can condition variables not synchronize across separate processes by themselves?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Processes never run concurrently"
+        },
+        {
+          "id": "b",
+          "text": "Processes do not share address space; CV/mutex need shared memory or IPC primitives"
+        },
+        {
+          "id": "c",
+          "text": "Threads cannot use mutexes"
+        },
+        {
+          "id": "d",
+          "text": "Condition variables only work with atomics"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Threads share memory within a process; cross-process sync needs shared memory/IPC."
+    },
+    {
+      "id": "virtual-ctor",
+      "type": "single",
+      "prompt": "Why can a C++ constructor not be virtual?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Constructors are always constexpr"
+        },
+        {
+          "id": "b",
+          "text": "During construction the dynamic type/vtable machinery is not yet fully established for virtual dispatch as for normal methods"
+        },
+        {
+          "id": "c",
+          "text": "The standard forbids any factory patterns"
+        },
+        {
+          "id": "d",
+          "text": "Destructors cannot be virtual either"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Use cloning/factory idioms instead of virtual constructors; destructors often should be virtual in polymorphic bases."
+    },
+    {
+      "id": "rel-strength",
+      "type": "order",
+      "prompt": "Order class relationships from weakest to strongest coupling.",
+      "items": [
+        {
+          "id": "dep",
+          "text": "Dependency (uses-a)"
+        },
+        {
+          "id": "assoc",
+          "text": "Association (knows-a)"
+        },
+        {
+          "id": "agg",
+          "text": "Aggregation (weak has-a)"
+        },
+        {
+          "id": "comp",
+          "text": "Composition (strong has-a)"
+        },
+        {
+          "id": "inh",
+          "text": "Inheritance (is-a)"
+        }
+      ],
+      "answer": [
+        "dep",
+        "assoc",
+        "agg",
+        "comp",
+        "inh"
+      ],
+      "explanation": "From temporary use through ownership to type hierarchy — as in the interview notes."
+    },
+    {
+      "id": "solid-map",
+      "type": "match",
+      "prompt": "Match each SOLID letter to its meaning.",
+      "left": [
+        {
+          "id": "s",
+          "text": "S"
+        },
+        {
+          "id": "o",
+          "text": "O"
+        },
+        {
+          "id": "l",
+          "text": "L"
+        },
+        {
+          "id": "i",
+          "text": "I"
+        },
+        {
+          "id": "d",
+          "text": "D"
+        }
+      ],
+      "right": [
+        {
+          "id": "r1",
+          "text": "Single Responsibility"
+        },
+        {
+          "id": "r2",
+          "text": "Open/Closed"
+        },
+        {
+          "id": "r3",
+          "text": "Liskov Substitution"
+        },
+        {
+          "id": "r4",
+          "text": "Interface Segregation"
+        },
+        {
+          "id": "r5",
+          "text": "Dependency Inversion"
+        }
+      ],
+      "answer": {
+        "s": "r1",
+        "o": "r2",
+        "l": "r3",
+        "i": "r4",
+        "d": "r5"
+      },
+      "explanation": "Classic SOLID checklist for design interview answers."
+    },
+    {
+      "id": "design-pattern-cats",
+      "type": "multi",
+      "prompt": "Which classifications are correct for these patterns?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Singleton is creational"
+        },
+        {
+          "id": "b",
+          "text": "Adapter is structural"
+        },
+        {
+          "id": "c",
+          "text": "Observer is behavioral"
+        },
+        {
+          "id": "d",
+          "text": "Strategy is creational"
+        }
+      ],
+      "answer": [
+        "a",
+        "b",
+        "c"
+      ],
+      "explanation": "Strategy is behavioral; Singleton/Abstract Factory/Builder are creational."
+    },
+    {
+      "id": "polymorphism-virt",
+      "type": "single",
+      "prompt": "Runtime polymorphism via virtual functions requires what?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Only templates"
+        },
+        {
+          "id": "b",
+          "text": "A hierarchy and virtual dispatch (typically via vtable) selecting the dynamic type"
+        },
+        {
+          "id": "c",
+          "text": "Macros only"
+        },
+        {
+          "id": "d",
+          "text": "All member functions to be static"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Virtual calls resolve based on dynamic type; templates give compile-time polymorphism."
+    },
+    {
+      "id": "default-args-virtual",
+      "type": "single",
+      "prompt": "If Base::log(const char* = \"base\") is virtual and Derived overrides with a different default, what prints for Base* p = new Derived(); p->log();?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Derived's default argument text"
+        },
+        {
+          "id": "b",
+          "text": "Base's default argument text (defaults bind statically to the static type)"
+        },
+        {
+          "id": "c",
+          "text": "Compile error"
+        },
+        {
+          "id": "d",
+          "text": "Undefined behavior always"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Default arguments are not virtual; the static type of the call site supplies defaults.",
+      "code": {
+        "language": "cpp",
+        "source": "struct Base {\n  virtual void log(const char* msg = \"base\") {}\n};\nstruct Derived : Base {\n  void log(const char* msg = \"derived\") override {}\n};"
+      }
+    },
+    {
+      "id": "explicit-ctor",
+      "type": "single",
+      "prompt": "What does explicit on a constructor primarily prevent?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Move construction"
+        },
+        {
+          "id": "b",
+          "text": "Implicit converting construction from other types"
+        },
+        {
+          "id": "c",
+          "text": "Destructor calls"
+        },
+        {
+          "id": "d",
+          "text": "Template argument deduction"
+        }
+      ],
+      "answer": "b",
+      "explanation": "explicit blocks surprising implicit conversions; C++20 also has explicit(bool)."
+    },
+    {
+      "id": "rule-of-five",
+      "type": "reveal",
+      "prompt": "When do you apply the Rule of Five instead of the Rule of Zero?",
+      "answerText": "When the class directly owns a resource (raw pointer, fd, etc.) not already managed by RAII members, you need a destructor and carefully defined copy/move operations (or =delete). Prefer Rule of Zero by composing unique_ptr/string/vector.",
+      "explanation": "Interview classic: prefer Zero; Five only for custom resource owners."
+    },
+    {
+      "id": "compile-stages",
+      "type": "order",
+      "prompt": "Order typical C++ translation stages from earliest to latest.",
+      "items": [
+        {
+          "id": "pp",
+          "text": "Preprocessor"
+        },
+        {
+          "id": "fe",
+          "text": "Front-end (parse/semantics)"
+        },
+        {
+          "id": "me",
+          "text": "Middle-end optimizations"
+        },
+        {
+          "id": "be",
+          "text": "Back-end (codegen/asm)"
+        },
+        {
+          "id": "obj",
+          "text": "Object file emission"
+        },
+        {
+          "id": "ld",
+          "text": "Linking"
+        }
+      ],
+      "answer": [
+        "pp",
+        "fe",
+        "me",
+        "be",
+        "obj",
+        "ld"
+      ],
+      "explanation": "Macros → IR/optimize → asm/object → link libraries."
+    },
+    {
+      "id": "odr-basic",
+      "type": "single",
+      "prompt": "What does the One Definition Rule (ODR) require?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Every entity may be defined arbitrarily often with different bodies"
+        },
+        {
+          "id": "b",
+          "text": "Entities may be declared multiple times but non-inline non-template definitions must appear only once in the program (else ill-formed/UB)"
+        },
+        {
+          "id": "c",
+          "text": "Headers may never declare functions"
+        },
+        {
+          "id": "d",
+          "text": "Templates cannot be in headers"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Duplicate non-inline definitions across TUs violate ODR; inline/templates have special allowances."
+    },
+    {
+      "id": "odr-exceptions",
+      "type": "multi",
+      "prompt": "Which may safely have definitions in multiple translation units?",
+      "options": [
+        {
+          "id": "a",
+          "text": "inline functions and inline variables (C++17)"
+        },
+        {
+          "id": "b",
+          "text": "Template definitions in headers"
+        },
+        {
+          "id": "c",
+          "text": "Non-inline non-static free function defined in two .cpp files identically"
+        },
+        {
+          "id": "d",
+          "text": "Entities in an anonymous namespace (internal linkage per TU)"
+        }
+      ],
+      "answer": [
+        "a",
+        "b",
+        "d"
+      ],
+      "explanation": "Identical non-inline definitions in two TUs are classic ODR bugs."
+    },
+    {
+      "id": "inline-two-meanings",
+      "type": "single",
+      "prompt": "What are the two roles of the inline keyword?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Forces SIMD and disables inlining"
+        },
+        {
+          "id": "b",
+          "text": "Hint to inline at call sites, and permission for multiple identical definitions across TUs"
+        },
+        {
+          "id": "c",
+          "text": "Makes a function virtual"
+        },
+        {
+          "id": "d",
+          "text": "Guarantees the compiler always inlines"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Inlining is optional; ODR allowance is the linkage meaning — critical for headers."
+    },
+    {
+      "id": "static-global",
+      "type": "single",
+      "prompt": "A namespace-scope static variable in a .cpp primarily provides what?",
+      "options": [
+        {
+          "id": "a",
+          "text": "External linkage visible to all TUs"
+        },
+        {
+          "id": "b",
+          "text": "Internal linkage (not visible to other TUs)"
+        },
+        {
+          "id": "c",
+          "text": "Thread-local storage always"
+        },
+        {
+          "id": "d",
+          "text": "Dynamic loading of shared libraries"
+        }
+      ],
+      "answer": "b",
+      "explanation": "static at namespace scope → internal linkage (prefer anonymous namespace in modern C++)."
+    },
+    {
+      "id": "lto-cloze",
+      "type": "cloze",
+      "prompt": "Cross-TU inlining and whole-program opts often need {{flag}} (Link-Time Optimization).",
+      "blanks": {
+        "flag": [
+          "-flto",
+          "flto",
+          "LTO"
+        ]
+      },
+      "explanation": "LTO lets the optimizer see multiple object files together.",
+      "choices": [
+        "-flto",
+        "-O0",
+        "-g",
+        "-fPIC"
+      ]
+    },
+    {
+      "id": "pgo-def",
+      "type": "single",
+      "prompt": "What is Profile-Guided Optimization (PGO)?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Randomizing binary layout each run"
+        },
+        {
+          "id": "b",
+          "text": "Instrument, run representative workload, rebuild using the profile to guide opts"
+        },
+        {
+          "id": "c",
+          "text": "Only enabling -O0 for debugging"
+        },
+        {
+          "id": "d",
+          "text": "Replacing LTO entirely"
+        }
+      ],
+      "answer": "b",
+      "explanation": "PGO + LTO is a common release combo for hot-path layout and branches."
+    },
+    {
+      "id": "abi-vs-api",
+      "type": "single",
+      "prompt": "How does ABI differ from API?",
+      "options": [
+        {
+          "id": "a",
+          "text": "They are synonyms"
+        },
+        {
+          "id": "b",
+          "text": "API is the source-level contract; ABI is the binary calling/layout/mangling contract"
+        },
+        {
+          "id": "c",
+          "text": "ABI is only about Java"
+        },
+        {
+          "id": "d",
+          "text": "API includes register calling conventions only"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Breaking ABI forces client rebuilds even if source still compiles against new headers."
+    },
+    {
+      "id": "token-kinds",
+      "type": "match",
+      "prompt": "Match token kinds to examples.",
+      "left": [
+        {
+          "id": "kw",
+          "text": "Keyword"
+        },
+        {
+          "id": "id",
+          "text": "Identifier"
+        },
+        {
+          "id": "lit",
+          "text": "Literal"
+        },
+        {
+          "id": "op",
+          "text": "Operator"
+        }
+      ],
+      "right": [
+        {
+          "id": "r1",
+          "text": "virtual, class, return"
+        },
+        {
+          "id": "r2",
+          "text": "myVar, Foo, ns"
+        },
+        {
+          "id": "r3",
+          "text": "42, \"hi\", nullptr"
+        },
+        {
+          "id": "r4",
+          "text": "::, ->, <=>"
+        }
+      ],
+      "answer": {
+        "kw": "r1",
+        "id": "r2",
+        "lit": "r3",
+        "op": "r4"
+      },
+      "explanation": "Lexical analysis splits source into these tokens."
+    },
+    {
+      "id": "sfinae-def",
+      "type": "single",
+      "prompt": "What does SFINAE mean during template overload resolution?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Any failure inside a function body is ignored"
+        },
+        {
+          "id": "b",
+          "text": "Substitution failure in a template signature discards that candidate without hard error"
+        },
+        {
+          "id": "c",
+          "text": "Templates cannot be overloaded"
+        },
+        {
+          "id": "d",
+          "text": "Concepts are required before C++11"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Body errors are hard errors; SFINAE applies to substitution in the signature/declaration."
+    },
+    {
+      "id": "sfinae-vs-concepts",
+      "type": "single",
+      "prompt": "In modern C++, what is the preferred readable replacement for many enable_if SFINAE patterns?",
+      "options": [
+        {
+          "id": "a",
+          "text": "goto"
+        },
+        {
+          "id": "b",
+          "text": "concepts and requires clauses (C++20)"
+        },
+        {
+          "id": "c",
+          "text": "preprocessor only"
+        },
+        {
+          "id": "d",
+          "text": "reinterpret_cast"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Concepts express constraints clearly; SFINAE remains under the hood/legacy."
+    },
+    {
+      "id": "pod-traits",
+      "type": "multi",
+      "prompt": "Which are true about POD / trivial / standard-layout ideas?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Trivial types have defaulted special members and no virtuals in the trivial sense"
+        },
+        {
+          "id": "b",
+          "text": "Standard-layout constrains member access/layout for predictable ABI"
+        },
+        {
+          "id": "c",
+          "text": "std::is_pod is the preferred C++20 trait to use exclusively"
+        },
+        {
+          "id": "d",
+          "text": "POD-ish types are memcpy-friendly for C interop when traits allow"
+        }
+      ],
+      "answer": [
+        "a",
+        "b",
+        "d"
+      ],
+      "explanation": "C++20 deprecates is_pod; check trivial and standard-layout separately."
+    },
+    {
+      "id": "cpp17-library",
+      "type": "multi",
+      "prompt": "Which library utilities arrived (or were standardized prominently) in C++17?",
+      "options": [
+        {
+          "id": "a",
+          "text": "std::optional"
+        },
+        {
+          "id": "b",
+          "text": "std::variant"
+        },
+        {
+          "id": "c",
+          "text": "std::span"
+        },
+        {
+          "id": "d",
+          "text": "std::string_view"
+        }
+      ],
+      "answer": [
+        "a",
+        "b",
+        "d"
+      ],
+      "explanation": "std::span is C++20; optional/variant/any/string_view/filesystem are C++17 highlights."
+    },
+    {
+      "id": "string-view-dangle",
+      "type": "single",
+      "prompt": "What is the main lifetime risk of std::string_view?",
+      "options": [
+        {
+          "id": "a",
+          "text": "It always extends temporary lifetime indefinitely"
+        },
+        {
+          "id": "b",
+          "text": "It is non-owning and may dangle if the underlying character sequence dies"
+        },
+        {
+          "id": "c",
+          "text": "It allocates on every substring"
+        },
+        {
+          "id": "d",
+          "text": "It cannot bind to string literals"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Classic bug: string_view v = std::string{\"tmp\"}; // dangling",
+      "code": {
+        "language": "cpp",
+        "source": "std::string_view v = std::string{\"tmp\"};\n// v dangles"
+      }
+    },
+    {
+      "id": "structured-bindings",
+      "type": "single",
+      "prompt": "What do structured bindings (C++17) enable?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Unpacking tuple-like/aggregate objects into named variables"
+        },
+        {
+          "id": "b",
+          "text": "Runtime reflection of all private members"
+        },
+        {
+          "id": "c",
+          "text": "Automatic parallelization"
+        },
+        {
+          "id": "d",
+          "text": "Replacing the linker"
+        }
+      ],
+      "answer": "a",
+      "explanation": "auto [a,b,c] = tupleOrStruct;"
+    },
+    {
+      "id": "fold-expr",
+      "type": "cloze",
+      "prompt": "A C++17 unary right fold summing a pack can be written (args {{op}} ...).",
+      "blanks": {
+        "op": [
+          "+",
+          "plus"
+        ]
+      },
+      "explanation": "Fold expressions replace recursive template sum helpers.",
+      "choices": [
+        "+",
+        "*",
+        ",",
+        "&&"
+      ]
+    },
+    {
+      "id": "if-init",
+      "type": "single",
+      "prompt": "What does if (auto it = m.find(k); it != m.end()) provide?",
+      "options": [
+        {
+          "id": "a",
+          "text": "A goto into the linker"
+        },
+        {
+          "id": "b",
+          "text": "An if with init-statement limiting the variable's scope to the if"
+        },
+        {
+          "id": "c",
+          "text": "Mandatory coroutines"
+        },
+        {
+          "id": "d",
+          "text": "Undefined behavior on maps"
+        }
+      ],
+      "answer": "b",
+      "explanation": "C++17 if/switch init keeps temporaries tightly scoped."
+    },
+    {
+      "id": "cpp17-attrs",
+      "type": "multi",
+      "prompt": "Which attributes are standard and commonly discussed with C++17?",
+      "options": [
+        {
+          "id": "a",
+          "text": "[[nodiscard]]"
+        },
+        {
+          "id": "b",
+          "text": "[[maybe_unused]]"
+        },
+        {
+          "id": "c",
+          "text": "[[fallthrough]]"
+        },
+        {
+          "id": "d",
+          "text": "[[gpu_only]]"
+        }
+      ],
+      "answer": [
+        "a",
+        "b",
+        "c"
+      ],
+      "explanation": "[[gpu_only]] is not a standard attribute."
+    },
+    {
+      "id": "inline-variables",
+      "type": "single",
+      "prompt": "What problem do C++17 inline variables solve?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Allowing a single definition of a variable in a header included by many TUs"
+        },
+        {
+          "id": "b",
+          "text": "Forcing heap allocation of globals"
+        },
+        {
+          "id": "c",
+          "text": "Disabling constexpr"
+        },
+        {
+          "id": "d",
+          "text": "Making all globals thread_local"
+        }
+      ],
+      "answer": "a",
+      "explanation": "inline int counter = 0; in a header is ODR-safe across TUs."
+    },
+    {
+      "id": "variant-vs-any",
+      "type": "single",
+      "prompt": "How does std::variant differ from std::any?",
+      "options": [
+        {
+          "id": "a",
+          "text": "variant is a type-safe union of a fixed alternative set; any can hold any type via type erasure"
+        },
+        {
+          "id": "b",
+          "text": "any is always faster and safer than variant"
+        },
+        {
+          "id": "c",
+          "text": "variant can hold unbounded unknown types without visitation"
+        },
+        {
+          "id": "d",
+          "text": "They are identical aliases"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Prefer variant when the set is known; any loses static alternatives."
+    },
+    {
+      "id": "union-active",
+      "type": "single",
+      "prompt": "What is true about a classic C++ union?",
+      "options": [
+        {
+          "id": "a",
+          "text": "All members are simultaneously active and typed-safe"
+        },
+        {
+          "id": "b",
+          "text": "It overlays storage; only one member should be active; low-level and easy to misuse"
+        },
+        {
+          "id": "c",
+          "text": "It replaces variant entirely in modern code with no downsides"
+        },
+        {
+          "id": "d",
+          "text": "Reading inactive members is always well-defined for all types"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Use std::variant for type-safe discriminated unions."
+    },
+    {
+      "id": "span-def",
+      "type": "single",
+      "prompt": "What is std::span?",
+      "options": [
+        {
+          "id": "a",
+          "text": "An owning container like vector"
+        },
+        {
+          "id": "b",
+          "text": "A non-owning view over a contiguous sequence (pointer+size)"
+        },
+        {
+          "id": "c",
+          "text": "A linked-list adaptor"
+        },
+        {
+          "id": "d",
+          "text": "A coroutine handle"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Like string_view but for arbitrary contiguous elements."
+    },
+    {
+      "id": "format-def",
+      "type": "single",
+      "prompt": "What does std::format provide vs printf-style formatting?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Type-safe, extensible formatting with {} placeholders"
+        },
+        {
+          "id": "b",
+          "text": "Only binary serialization"
+        },
+        {
+          "id": "c",
+          "text": "Automatic GPU offload"
+        },
+        {
+          "id": "d",
+          "text": "Replacement for the memory model"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Format strings are checked more safely than %d mismatches."
+    },
+    {
+      "id": "ranges-facts",
+      "type": "multi",
+      "prompt": "Which statements about std::ranges are correct?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Algorithms can take whole ranges instead of iterator pairs"
+        },
+        {
+          "id": "b",
+          "text": "views compose lazily with | without always building intermediate containers"
+        },
+        {
+          "id": "c",
+          "text": "ranges::sort requires a C-style array only"
+        },
+        {
+          "id": "d",
+          "text": "filter/transform/take are common views"
+        }
+      ],
+      "answer": [
+        "a",
+        "b",
+        "d"
+      ],
+      "explanation": "Ranges modernize <algorithm> usage and lazy pipelines."
+    },
+    {
+      "id": "concepts-def",
+      "type": "single",
+      "prompt": "What do C++20 concepts primarily express?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Runtime logging categories"
+        },
+        {
+          "id": "b",
+          "text": "Compile-time constraints on template parameters with clear diagnostics"
+        },
+        {
+          "id": "c",
+          "text": "Linker scripts"
+        },
+        {
+          "id": "d",
+          "text": "CPU affinity masks"
+        }
+      ],
+      "answer": "b",
+      "explanation": "requires expressions document and enforce capabilities."
+    },
+    {
+      "id": "cxx20-keywords",
+      "type": "match",
+      "prompt": "Match C++20 keywords to meaning.",
+      "left": [
+        {
+          "id": "cexpr",
+          "text": "constexpr function"
+        },
+        {
+          "id": "ceval",
+          "text": "consteval function"
+        },
+        {
+          "id": "cinit",
+          "text": "constinit variable"
+        }
+      ],
+      "right": [
+        {
+          "id": "r1",
+          "text": "May run at compile time or runtime"
+        },
+        {
+          "id": "r2",
+          "text": "Must run at compile time (immediate function)"
+        },
+        {
+          "id": "r3",
+          "text": "Must have static initialization; object need not be const"
+        }
+      ],
+      "answer": {
+        "cexpr": "r1",
+        "ceval": "r2",
+        "cinit": "r3"
+      },
+      "explanation": "Common interview trio from the notes."
+    },
+    {
+      "id": "consteval-runtime-arg",
+      "type": "single",
+      "prompt": "What happens if you call a consteval function with a runtime-only argument?",
+      "options": [
+        {
+          "id": "a",
+          "text": "It falls back to runtime silently"
+        },
+        {
+          "id": "b",
+          "text": "It throws std::bad_consteval"
+        },
+        {
+          "id": "c",
+          "text": "Compilation fails — no runtime fallback"
+        },
+        {
+          "id": "d",
+          "text": "UB at runtime"
+        }
+      ],
+      "answer": "c",
+      "explanation": "Immediate functions require constant-expression arguments."
+    },
+    {
+      "id": "const-vs-constant-expr",
+      "type": "single",
+      "prompt": "Why may const int x = runtime_value; still be unusable as a consteval argument?",
+      "options": [
+        {
+          "id": "a",
+          "text": "const always means constant expression"
+        },
+        {
+          "id": "b",
+          "text": "const is not sufficient; the initializer must itself be a constant expression"
+        },
+        {
+          "id": "c",
+          "text": "consteval ignores all ints"
+        },
+        {
+          "id": "d",
+          "text": "Only floats work with consteval"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Integral const with constant initializer can be a constant expression; runtime init is not."
+    },
+    {
+      "id": "cxx20-more",
+      "type": "multi",
+      "prompt": "Which are C++20 features?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Three-way comparison operator <=>"
+        },
+        {
+          "id": "b",
+          "text": "Modules (import/export)"
+        },
+        {
+          "id": "c",
+          "text": "Coroutines (co_await/co_yield/co_return)"
+        },
+        {
+          "id": "d",
+          "text": "std::auto_ptr revitalization"
+        }
+      ],
+      "answer": [
+        "a",
+        "b",
+        "c"
+      ],
+      "explanation": "auto_ptr stays dead."
+    },
+    {
+      "id": "endian-cloze",
+      "type": "cloze",
+      "prompt": "C++20 exposes native endianness via std::{{name}} in <bit>.",
+      "blanks": {
+        "name": [
+          "endian"
+        ]
+      },
+      "explanation": "Compare std::endian::native to big/little.",
+      "choices": [
+        "endian",
+        "byte_order",
+        "endianness",
+        "order"
+      ]
+    },
+    {
+      "id": "endian-check",
+      "type": "single",
+      "prompt": "For uint32_t x = 0x01020304, little-endian machines typically have which first byte?",
+      "options": [
+        {
+          "id": "a",
+          "text": "0x01"
+        },
+        {
+          "id": "b",
+          "text": "0x04"
+        },
+        {
+          "id": "c",
+          "text": "0x00"
+        },
+        {
+          "id": "d",
+          "text": "0xFF"
+        }
+      ],
+      "answer": "b",
+      "explanation": "LSB first on little-endian (x86/x64, most ARM).",
+      "code": {
+        "language": "cpp",
+        "source": "const uint32_t x = 0x01020304u;\nauto* b = reinterpret_cast<const unsigned char*>(&x);\n// b[0]?"
+      }
+    },
+    {
+      "id": "thread-risks",
+      "type": "multi",
+      "prompt": "Which are classic multithreading hazards?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Data races / race conditions"
+        },
+        {
+          "id": "b",
+          "text": "Deadlock and livelock"
+        },
+        {
+          "id": "c",
+          "text": "False sharing"
+        },
+        {
+          "id": "d",
+          "text": "Priority inversion"
+        }
+      ],
+      "answer": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "explanation": "All appear in the interview notes' thread-risk list."
+    },
+    {
+      "id": "thread-dtor",
+      "type": "single",
+      "prompt": "What happens if std::thread is destroyed while joinable?",
+      "options": [
+        {
+          "id": "a",
+          "text": "It detaches automatically and continues safely"
+        },
+        {
+          "id": "b",
+          "text": "std::terminate() is called"
+        },
+        {
+          "id": "c",
+          "text": "The thread is cancelled cooperatively"
+        },
+        {
+          "id": "d",
+          "text": "The process freezes until join"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Always join or detach before destruction.",
+      "code": {
+        "language": "cpp",
+        "source": "void bad() {\n  std::thread t([]{ /*work*/ });\n} // ~thread -> terminate"
+      }
+    },
+    {
+      "id": "async-policy",
+      "type": "single",
+      "prompt": "Why specify std::launch::async with std::async for true concurrency?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Default policy may defer execution until get()/wait(), possibly running synchronously"
+        },
+        {
+          "id": "b",
+          "text": "async always uses GPU"
+        },
+        {
+          "id": "c",
+          "text": "launch::async disables exceptions"
+        },
+        {
+          "id": "d",
+          "text": "Without it, code will not compile"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Be explicit when you need a new thread of execution."
+    },
+    {
+      "id": "volatile-vs-atomic",
+      "type": "single",
+      "prompt": "Why is volatile not a substitute for std::atomic in threading?",
+      "options": [
+        {
+          "id": "a",
+          "text": "volatile provides acquire-release synchronization"
+        },
+        {
+          "id": "b",
+          "text": "volatile does not provide atomicity or inter-thread synchronization semantics"
+        },
+        {
+          "id": "c",
+          "text": "atomics are deprecated"
+        },
+        {
+          "id": "d",
+          "text": "volatile prevents all optimizations including register allocation forever across threads by standard sync"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Use atomics/mutexes for concurrency; volatile is for special memory-mapped IO cases."
+    },
+    {
+      "id": "memory-orders",
+      "type": "match",
+      "prompt": "Match memory_order to role.",
+      "left": [
+        {
+          "id": "relx",
+          "text": "relaxed"
+        },
+        {
+          "id": "acq",
+          "text": "acquire"
+        },
+        {
+          "id": "rel",
+          "text": "release"
+        },
+        {
+          "id": "ar",
+          "text": "acq_rel"
+        },
+        {
+          "id": "sc",
+          "text": "seq_cst"
+        }
+      ],
+      "right": [
+        {
+          "id": "r1",
+          "text": "Atomicity only; no sync with other locations"
+        },
+        {
+          "id": "r2",
+          "text": "Read side of publish-subscribe visibility"
+        },
+        {
+          "id": "r3",
+          "text": "Write side publishing prior stores"
+        },
+        {
+          "id": "r4",
+          "text": "RMW combining acquire and release"
+        },
+        {
+          "id": "r5",
+          "text": "Strongest; total global order default"
+        }
+      ],
+      "answer": {
+        "relx": "r1",
+        "acq": "r2",
+        "rel": "r3",
+        "ar": "r4",
+        "sc": "r5"
+      },
+      "explanation": "Hot paths often use deliberate acquire/release instead of seq_cst."
+    },
+    {
+      "id": "spsc-release",
+      "type": "single",
+      "prompt": "In an SPSC ring buffer, why store the producer index with memory_order_release after writing the slot?",
+      "options": [
+        {
+          "id": "a",
+          "text": "To make the payload stores visible to a consumer that acquire-loads the index"
+        },
+        {
+          "id": "b",
+          "text": "Because release makes the index larger numerically"
+        },
+        {
+          "id": "c",
+          "text": "To disable the CPU cache"
+        },
+        {
+          "id": "d",
+          "text": "Release is required for single-threaded code"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Payload first, then release-store the index; consumer acquire-loads then reads payload.",
+      "code": {
+        "language": "cpp",
+        "source": "buf_[tail] = value;\ntail_.store(next, std::memory_order_release);"
+      }
+    },
+    {
+      "id": "false-sharing",
+      "type": "single",
+      "prompt": "What is false sharing?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Two threads sharing a mutex correctly"
+        },
+        {
+          "id": "b",
+          "text": "Threads mutating independent variables that share a cache line, causing ping-pong coherence traffic"
+        },
+        {
+          "id": "c",
+          "text": "Sharing files via mmap"
+        },
+        {
+          "id": "d",
+          "text": "Using shared_ptr"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Pad/align hot atomics (e.g. head/tail) onto separate cache lines."
+    },
+    {
+      "id": "shared-ptr-diy",
+      "type": "reveal",
+      "prompt": "Sketch what an interviewer expects in a simplified shared_ptr implementation.",
+      "answerText": "Separate control block with use_count; copy increments; destructor/assignment decrements and deletes object+block at 0; move steals without touching count; handle self-assignment and empty nullptr without allocating a count; note real shared_ptr uses atomics, weak_count, aliasing ctor, custom deleters, and make_shared one-allocation.",
+      "explanation": "Classic coding interview from the notes."
+    },
+    {
+      "id": "shared-ptr-atomic",
+      "type": "single",
+      "prompt": "Why is the real std::shared_ptr control block reference count atomic?",
+      "options": [
+        {
+          "id": "a",
+          "text": "To allow copying across threads without data races on the count"
+        },
+        {
+          "id": "b",
+          "text": "Atomics make the managed T automatically thread-safe"
+        },
+        {
+          "id": "c",
+          "text": "To prevent moves"
+        },
+        {
+          "id": "d",
+          "text": "Because weak_ptr forbids atomics"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Shared ownership can cross threads; T still needs its own synchronization."
+    },
+    {
+      "id": "moved-from",
+      "type": "single",
+      "prompt": "After std::string b = std::move(a); what is true of a?",
+      "options": [
+        {
+          "id": "a",
+          "text": "a is guaranteed empty"
+        },
+        {
+          "id": "b",
+          "text": "a is valid but unspecified; safe to assign/destroy; do not assume contents"
+        },
+        {
+          "id": "c",
+          "text": "a is destroyed"
+        },
+        {
+          "id": "d",
+          "text": "a still equals b always"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Moved-from requires valid state, not a specific value."
+    },
+    {
+      "id": "ub-list",
+      "type": "multi",
+      "prompt": "Which are undefined behavior in C++?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Signed integer overflow"
+        },
+        {
+          "id": "b",
+          "text": "Data race on non-atomic shared memory"
+        },
+        {
+          "id": "c",
+          "text": "Use after lifetime / dangling access"
+        },
+        {
+          "id": "d",
+          "text": "Throwing a user-defined exception type"
+        }
+      ],
+      "answer": [
+        "a",
+        "b",
+        "c"
+      ],
+      "explanation": "Throwing user types is fine; the others are classic UB."
+    },
+    {
+      "id": "lifetime-order",
+      "type": "order",
+      "prompt": "Order events for a block-scope object lifetime.",
+      "items": [
+        {
+          "id": "storage",
+          "text": "Storage obtained"
+        },
+        {
+          "id": "ctor",
+          "text": "Constructor completes; lifetime begins"
+        },
+        {
+          "id": "use",
+          "text": "Ordinary member use"
+        },
+        {
+          "id": "dtor",
+          "text": "Destructor starts; lifetime ends"
+        }
+      ],
+      "answer": [
+        "storage",
+        "ctor",
+        "use",
+        "dtor"
+      ],
+      "explanation": "Lifetime brackets successful initialization through destructor start."
+    },
+    {
+      "id": "ctor-order",
+      "type": "order",
+      "prompt": "Order construction of a derived object.",
+      "items": [
+        {
+          "id": "bases",
+          "text": "Base subobject constructors"
+        },
+        {
+          "id": "members",
+          "text": "Non-static members in declaration order"
+        },
+        {
+          "id": "body",
+          "text": "Derived constructor body"
+        }
+      ],
+      "answer": [
+        "bases",
+        "members",
+        "body"
+      ],
+      "explanation": "Destruction reverses this order."
+    },
+    {
+      "id": "forward-cloze",
+      "type": "cloze",
+      "prompt": "Perfect forwarding uses std::{{fn}} on a forwarding reference T&&.",
+      "blanks": {
+        "fn": [
+          "forward"
+        ]
+      },
+      "explanation": "std::move unconditionally casts to rvalue; forward preserves value category.",
+      "choices": [
+        "forward",
+        "move",
+        "ref",
+        "decay"
+      ]
+    },
+    {
+      "id": "emplace-cloze",
+      "type": "cloze",
+      "prompt": "Prefer v.{{m}}(...) to construct in-place in a vector when it avoids an extra temporary.",
+      "blanks": {
+        "m": [
+          "emplace_back"
+        ]
+      },
+      "explanation": "emplace_back forwards args to the element constructor.",
+      "choices": [
+        "emplace_back",
+        "push_back",
+        "insert",
+        "emplace"
+      ]
+    },
+    {
+      "id": "rule-of-zero",
+      "type": "single",
+      "prompt": "What does the Rule of Zero recommend?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Always write all five special members"
+        },
+        {
+          "id": "b",
+          "text": "Prefer types that manage no raw resources so special members can be defaulted/omitted"
+        },
+        {
+          "id": "c",
+          "text": "Never use destructors"
+        },
+        {
+          "id": "d",
+          "text": "Delete copy and also delete move always"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Compose RAII members and let the compiler generate special members."
+    },
+    {
+      "id": "ll-def",
+      "type": "single",
+      "prompt": "In trading/low-latency systems, what is optimized beyond average throughput?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Only mean latency"
+        },
+        {
+          "id": "b",
+          "text": "Predictable response time with emphasis on tail latency (p99/p99.9) and jitter"
+        },
+        {
+          "id": "c",
+          "text": "Only code size"
+        },
+        {
+          "id": "d",
+          "text": "Only compile times"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Determinism: avoid alloc/locks/syscalls on the hot path."
+    },
+    {
+      "id": "p99-def",
+      "type": "single",
+      "prompt": "What is p99 latency?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The mean of the slowest 99%"
+        },
+        {
+          "id": "b",
+          "text": "The latency threshold at the 99th percentile — 99% of samples are ≤ that value"
+        },
+        {
+          "id": "c",
+          "text": "Always equal to median"
+        },
+        {
+          "id": "d",
+          "text": "The sum of all latencies"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Tail percentiles expose spikes that averages hide."
+    },
+    {
+      "id": "ll-techniques",
+      "type": "multi",
+      "prompt": "Which techniques appear in low-latency C++ systems?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Preallocate memory; avoid hot-path malloc"
+        },
+        {
+          "id": "b",
+          "text": "Lock-free structures / pinned threads"
+        },
+        {
+          "id": "c",
+          "text": "Kernel bypass NICs for extreme networking"
+        },
+        {
+          "id": "d",
+          "text": "JSON parsing on every tick as the preferred wire format"
+        }
+      ],
+      "answer": [
+        "a",
+        "b",
+        "c"
+      ],
+      "explanation": "Prefer fixed layouts/SBE/FlatBuffers over JSON on critical path."
+    },
+    {
+      "id": "soa-vs-aos",
+      "type": "single",
+      "prompt": "Why is Structure-of-Arrays often better for SIMD than Array-of-Structures?",
+      "options": [
+        {
+          "id": "a",
+          "text": "AoS packs better for scalar random access always"
+        },
+        {
+          "id": "b",
+          "text": "SoA keeps like-fields contiguous, improving vector loads and cache behavior for bulk ops"
+        },
+        {
+          "id": "c",
+          "text": "SoA forbids float"
+        },
+        {
+          "id": "d",
+          "text": "SIMD requires linked lists"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Contiguous homogeneous lanes vectorize cleanly."
+    },
+    {
+      "id": "simd-reqs",
+      "type": "multi",
+      "prompt": "What helps effective SIMD?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Contiguous data and suitable alignment"
+        },
+        {
+          "id": "b",
+          "text": "Avoiding hard-to-predict branches in hot loops"
+        },
+        {
+          "id": "c",
+          "text": "Auto-vectorization via -O3/-mavx2 or intrinsics"
+        },
+        {
+          "id": "d",
+          "text": "Heavy pointer-chasing linked lists as the primary layout"
+        }
+      ],
+      "answer": [
+        "a",
+        "b",
+        "c"
+      ],
+      "explanation": "Linked lists defeat vector loads."
+    },
+    {
+      "id": "profile-tools",
+      "type": "match",
+      "prompt": "Match tool to use case.",
+      "left": [
+        {
+          "id": "perf",
+          "text": "perf"
+        },
+        {
+          "id": "flame",
+          "text": "Flame graph"
+        },
+        {
+          "id": "callgrind",
+          "text": "Callgrind"
+        },
+        {
+          "id": "massif",
+          "text": "Massif"
+        },
+        {
+          "id": "asan",
+          "text": "ASan"
+        }
+      ],
+      "right": [
+        {
+          "id": "r1",
+          "text": "Low-overhead CPU sampling on Linux"
+        },
+        {
+          "id": "r2",
+          "text": "Visualize where CPU time concentrates in stacks"
+        },
+        {
+          "id": "r3",
+          "text": "Heavy instrumentation call-graph profiling"
+        },
+        {
+          "id": "r4",
+          "text": "Heap profiling"
+        },
+        {
+          "id": "r5",
+          "text": "Detect memory errors at runtime"
+        }
+      ],
+      "answer": {
+        "perf": "r1",
+        "flame": "r2",
+        "callgrind": "r3",
+        "massif": "r4",
+        "asan": "r5"
+      },
+      "explanation": "Measure before optimizing; Valgrind tools are heavy."
+    },
+    {
+      "id": "telemetry-hotpath",
+      "type": "single",
+      "prompt": "How should telemetry interact with a low-latency hot path?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Synchronously flush every metric on the critical path"
+        },
+        {
+          "id": "b",
+          "text": "Keep instrumentation off the hot path: async queues, sampling, batching"
+        },
+        {
+          "id": "c",
+          "text": "Disable all metrics forever"
+        },
+        {
+          "id": "d",
+          "text": "Use malloc per event on the order path"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Measure without becoming the bottleneck."
+    },
+    {
+      "id": "opt-flags",
+      "type": "single",
+      "prompt": "Which statement about -O flags is most accurate for production low-latency builds?",
+      "options": [
+        {
+          "id": "a",
+          "text": "-O0 is best for speed"
+        },
+        {
+          "id": "b",
+          "text": "-O2/-O3 with careful flags, often plus LTO/PGO, after measuring"
+        },
+        {
+          "id": "c",
+          "text": "Optimization flags never change codegen"
+        },
+        {
+          "id": "d",
+          "text": "-Os always minimizes latency"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Choose based on benchmarks; -O0 is for debug."
+    },
+    {
+      "id": "video-ll-story",
+      "type": "reveal",
+      "prompt": "How can real-time video pipeline work map to low-latency interview language?",
+      "answerText": "Frame it as minimizing action-to-frame latency and tail jank: hot-path transmux (Annex B), buffer reuse, seek/decode pipeline sync, play/pause state machine trading time-to-first-frame vs underruns — same mindset as trading: identify critical path, measure, remove stalls/allocs, validate with telemetry.",
+      "explanation": "Narrative bridge from the notes — not HFT, same engineering habits."
+    },
+    {
+      "id": "ocr-sync",
+      "type": "single",
+      "prompt": "For ~1000 document uploads/sec needing OCR, why is synchronous OCR-in-request a bad default?",
+      "options": [
+        {
+          "id": "a",
+          "text": "OCR is typically too slow/CPU-heavy; it would destroy API latency and capacity"
+        },
+        {
+          "id": "b",
+          "text": "Object storage cannot store images"
+        },
+        {
+          "id": "c",
+          "text": "Queues are illegal"
+        },
+        {
+          "id": "d",
+          "text": "OCR always finishes under 1ms"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Upload fast + async workers is the standard pattern."
+    },
+    {
+      "id": "ocr-design",
+      "type": "multi",
+      "prompt": "Which design choices fit a high-ingest OCR pipeline?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Presigned upload to object storage + job id"
+        },
+        {
+          "id": "b",
+          "text": "Queue with backpressure and DLQ"
+        },
+        {
+          "id": "c",
+          "text": "Separate lanes for tiny images vs giant PDFs to avoid head-of-line blocking"
+        },
+        {
+          "id": "d",
+          "text": "Run multi-second OCR inside the load balancer request thread"
+        }
+      ],
+      "answer": [
+        "a",
+        "b",
+        "c"
+      ],
+      "explanation": "Chunk huge PDFs; scale workers on queue lag."
+    },
+    {
+      "id": "hol-blocking",
+      "type": "single",
+      "prompt": "What is head-of-line blocking in a heterogeneous OCR queue?",
+      "options": [
+        {
+          "id": "a",
+          "text": "A giant PDF job delaying many small jobs behind it in one shared queue"
+        },
+        {
+          "id": "b",
+          "text": "DNS failure only"
+        },
+        {
+          "id": "c",
+          "text": "TCP congestion on localhost solely"
+        },
+        {
+          "id": "d",
+          "text": "Compiler backlog"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Route by size/pages into fast/normal/heavy pools."
+    },
+    {
+      "id": "ocr-flow",
+      "type": "order",
+      "prompt": "Order a sensible OCR ingest flow.",
+      "items": [
+        {
+          "id": "up",
+          "text": "Client uploads to object storage"
+        },
+        {
+          "id": "evt",
+          "text": "Event enqueued for processing"
+        },
+        {
+          "id": "ocr",
+          "text": "Worker runs OCR (possibly chunked)"
+        },
+        {
+          "id": "store",
+          "text": "Text/metadata stored"
+        },
+        {
+          "id": "api",
+          "text": "Query API returns ready text"
+        }
+      ],
+      "answer": [
+        "up",
+        "evt",
+        "ocr",
+        "store",
+        "api"
+      ],
+      "explanation": "Separate ingest ACK from heavy compute."
+    },
+    {
+      "id": "grpc-cloze",
+      "type": "cloze",
+      "prompt": "gRPC typically uses HTTP/2 and {{codec}} contracts.",
+      "blanks": {
+        "codec": [
+          "Protobuf",
+          "protobuf",
+          "proto"
+        ]
+      },
+      "explanation": "Strong typing and streaming; still often too heavy for HFT wire paths.",
+      "choices": [
+        "Protobuf",
+        "XML",
+        "CSV",
+        "HTML"
+      ]
+    },
+    {
+      "id": "fwd-ref",
+      "type": "single",
+      "prompt": "In template<typename T> void f(T&& x), what is T&&?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Always an rvalue reference"
+        },
+        {
+          "id": "b",
+          "text": "A forwarding/universal reference that may bind lvalues or rvalues depending on deduction"
+        },
+        {
+          "id": "c",
+          "text": "Always const"
+        },
+        {
+          "id": "d",
+          "text": "Illegal syntax"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Collapsing rules + std::forward enable perfect forwarding."
+    },
+    {
+      "id": "delete-vs-default",
+      "type": "single",
+      "prompt": "What does =delete on a special member mean?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The member is trivial"
+        },
+        {
+          "id": "b",
+          "text": "The member is defined as deleted — using it is ill-formed"
+        },
+        {
+          "id": "c",
+          "text": "The member is implicitly noexcept(false)"
+        },
+        {
+          "id": "d",
+          "text": "It enables ADL only"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Common for non-copyable types alongside unique_ptr members."
+    },
+    {
+      "id": "virtual-dtor",
+      "type": "single",
+      "prompt": "When should a base class destructor usually be virtual?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Never"
+        },
+        {
+          "id": "b",
+          "text": "When deleting derived objects through base pointers (polymorphic ownership)"
+        },
+        {
+          "id": "c",
+          "text": "Only if the class has no members"
+        },
+        {
+          "id": "d",
+          "text": "Only for templates"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Non-virtual base dtor + delete via base* is UB if destructor nontrivial path needed."
+    },
+    {
+      "id": "container-complexity",
+      "type": "multi",
+      "prompt": "Which complexity claims are correct for typical std:: containers?",
+      "options": [
+        {
+          "id": "a",
+          "text": "vector push_back amortized O(1)"
+        },
+        {
+          "id": "b",
+          "text": "unordered_map average O(1) lookup"
+        },
+        {
+          "id": "c",
+          "text": "list random access O(1)"
+        },
+        {
+          "id": "d",
+          "text": "map/set lookup O(log n)"
+        }
+      ],
+      "answer": [
+        "a",
+        "b",
+        "d"
+      ],
+      "explanation": "std::list is O(n) for random access."
+    },
+    {
+      "id": "iterator-invalid",
+      "type": "single",
+      "prompt": "After vector reallocation, what happens to prior iterators/pointers/references into it?",
+      "options": [
+        {
+          "id": "a",
+          "text": "They remain valid"
+        },
+        {
+          "id": "b",
+          "text": "They are invalidated"
+        },
+        {
+          "id": "c",
+          "text": "Only reverse iterators survive"
+        },
+        {
+          "id": "d",
+          "text": "They become const"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Capacity growth moves storage — classic footgun."
+    },
+    {
+      "id": "noexcept-move",
+      "type": "single",
+      "prompt": "Why mark move constructors noexcept when possible?",
+      "options": [
+        {
+          "id": "a",
+          "text": "vector and other containers can use moves during growth instead of falling back to copies"
+        },
+        {
+          "id": "b",
+          "text": "noexcept disables move"
+        },
+        {
+          "id": "c",
+          "text": "It is required for all functions"
+        },
+        {
+          "id": "d",
+          "text": "It enables garbage collection"
+        }
+      ],
+      "answer": "a",
+      "explanation": "std::move_if_noexcept / vector strong exception guarantee interactions."
+    },
+    {
+      "id": "adl-koenig",
+      "type": "single",
+      "prompt": "What is Argument-Dependent Lookup (ADL) mainly used for?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Finding free functions (e.g. swap, operators) in associated namespaces of argument types"
+        },
+        {
+          "id": "b",
+          "text": "Forcing global new"
+        },
+        {
+          "id": "c",
+          "text": "Disabling templates"
+        },
+        {
+          "id": "d",
+          "text": "Linking Fortran"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Also why using std::swap; swap(a,b); is an idiom."
+    },
+    {
+      "id": "pimpl",
+      "type": "single",
+      "prompt": "What is a primary benefit of the Pimpl idiom?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Faster compile times / ABI stability by hiding private implementation"
+        },
+        {
+          "id": "b",
+          "text": "Mandatory heap overflow"
+        },
+        {
+          "id": "c",
+          "text": "Removing const correctness"
+        },
+        {
+          "id": "d",
+          "text": "Guaranteed RVO only"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Trade an allocation/indirection for encapsulation and firewalled headers."
+    },
+    {
+      "id": "rvo-nrvo",
+      "type": "multi",
+      "prompt": "Which are true about copy elision / NRVO?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Compilers may omit copies/moves of temporaries under the rules"
+        },
+        {
+          "id": "b",
+          "text": "NRVO targets named locals returned by value"
+        },
+        {
+          "id": "c",
+          "text": "Elision means RAII destructors never run for any object"
+        },
+        {
+          "id": "d",
+          "text": "Since C++17, some prvalue elision is mandatory"
+        }
+      ],
+      "answer": [
+        "a",
+        "b",
+        "d"
+      ],
+      "explanation": "Destructors still run for the eventual object; elision skips intermediate temporaries."
+    },
+    {
+      "id": "optional-empty",
+      "type": "single",
+      "prompt": "What does a disengaged std::optional represent?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Nullptr dereference UB always"
+        },
+        {
+          "id": "b",
+          "text": "Absence of a value without a separate bool flag object"
+        },
+        {
+          "id": "c",
+          "text": "An infinite value"
+        },
+        {
+          "id": "d",
+          "text": "A variant alternative list"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Check has_value()/operator bool before value()."
+    },
+    {
+      "id": "seq-cst-cost",
+      "type": "single",
+      "prompt": "Why might seq_cst be avoided on a hot SPSC queue index update?",
+      "options": [
+        {
+          "id": "a",
+          "text": "It is incorrect always"
+        },
+        {
+          "id": "b",
+          "text": "It is the strongest ordering and may be more expensive than needed acquire/release pair"
+        },
+        {
+          "id": "c",
+          "text": "Hardware ignores seq_cst"
+        },
+        {
+          "id": "d",
+          "text": "seq_cst forbids atomics"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Use the weakest correct order; measure."
+    },
+    {
+      "id": "consume-rare",
+      "type": "single",
+      "prompt": "What is the practical guidance on memory_order_consume?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Prefer it everywhere"
+        },
+        {
+          "id": "b",
+          "text": "It is subtle/rarely used correctly; prefer acquire in practice"
+        },
+        {
+          "id": "c",
+          "text": "It is mandatory for mutexes"
+        },
+        {
+          "id": "d",
+          "text": "It equals relaxed"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Notes: treat consume as academic; use acquire."
+    },
+    {
+      "id": "mutex-cv",
+      "type": "single",
+      "prompt": "Condition variables require waiting with what?",
+      "options": [
+        {
+          "id": "a",
+          "text": "A predicate loop and a mutex (unique_lock), to handle spurious wakeups"
+        },
+        {
+          "id": "b",
+          "text": "Only atomics with relaxed"
+        },
+        {
+          "id": "c",
+          "text": "No mutex ever"
+        },
+        {
+          "id": "d",
+          "text": "File locks only"
+        }
+      ],
+      "answer": "a",
+      "explanation": "while (!ready) cv.wait(lock);"
+    },
+    {
+      "id": "lock-free-claims",
+      "type": "multi",
+      "prompt": "Which statements are careful/correct?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Lock-free structures still need correct memory ordering"
+        },
+        {
+          "id": "b",
+          "text": "Progress guarantees differ (obstruction/lock/wait-free)"
+        },
+        {
+          "id": "c",
+          "text": "Lock-free means zero atomic operations"
+        },
+        {
+          "id": "d",
+          "text": "ABA problems can affect CAS loops"
+        }
+      ],
+      "answer": [
+        "a",
+        "b",
+        "d"
+      ],
+      "explanation": "Lock-free ≠ free of atomics or design bugs."
+    },
+    {
+      "id": "cache-line",
+      "type": "single",
+      "prompt": "Typical x86 cache line size relevant to false sharing padding is often:",
+      "options": [
+        {
+          "id": "a",
+          "text": "4 bytes"
+        },
+        {
+          "id": "b",
+          "text": "64 bytes"
+        },
+        {
+          "id": "c",
+          "text": "1 MB"
+        },
+        {
+          "id": "d",
+          "text": "1 bit"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Pad hot counters to 64B boundaries as a common heuristic."
+    },
+    {
+      "id": "fs-error-code",
+      "type": "single",
+      "prompt": "Why prefer filesystem APIs taking std::error_code in production services?",
+      "options": [
+        {
+          "id": "a",
+          "text": "They avoid exceptions on failure paths, aiding control in tight/reliable code"
+        },
+        {
+          "id": "b",
+          "text": "error_code versions are always slower"
+        },
+        {
+          "id": "c",
+          "text": "Exceptions are removed from the language"
+        },
+        {
+          "id": "d",
+          "text": "Paths cannot use operator/"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Throwing overloads still exist; choose per error strategy."
+    },
+    {
+      "id": "std-invoke",
+      "type": "single",
+      "prompt": "What problem does std::invoke unify?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Calling functions, member pointers, and functors with one protocol"
+        },
+        {
+          "id": "b",
+          "text": "TCP congestion control"
+        },
+        {
+          "id": "c",
+          "text": "Makefile generation"
+        },
+        {
+          "id": "d",
+          "text": "Endian conversion only"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Used internally by std::thread/bind/apply-style utilities."
+    },
+    {
+      "id": "lexical-scope",
+      "type": "single",
+      "prompt": "C++ name lookup uses which scoping model?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Dynamic scope via call stack only"
+        },
+        {
+          "id": "b",
+          "text": "Lexical/static scope based on nesting in source"
+        },
+        {
+          "id": "c",
+          "text": "Only global scope"
+        },
+        {
+          "id": "d",
+          "text": "Regex scope"
+        }
+      ],
+      "answer": "b",
+      "explanation": "Dynamic scope is not a C++ feature."
+    },
+    {
+      "id": "using-namespace-header",
+      "type": "single",
+      "prompt": "Why is using namespace std; in a header discouraged?",
+      "options": [
+        {
+          "id": "a",
+          "text": "It pollutes the global namespace of every translation unit that includes it"
+        },
+        {
+          "id": "b",
+          "text": "It is a syntax error"
+        },
+        {
+          "id": "c",
+          "text": "It disables ADL forever"
+        },
+        {
+          "id": "d",
+          "text": "It makes iostreams constexpr"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Prefer targeted using declarations in .cpp scopes."
+    },
+    {
+      "id": "abbrev-ll",
+      "type": "match",
+      "prompt": "Match abbreviations to meanings.",
+      "left": [
+        {
+          "id": "hft",
+          "text": "HFT"
+        },
+        {
+          "id": "ipc",
+          "text": "IPC"
+        },
+        {
+          "id": "rtt",
+          "text": "RTT"
+        },
+        {
+          "id": "jit",
+          "text": "JIT"
+        },
+        {
+          "id": "gc",
+          "text": "GC"
+        }
+      ],
+      "right": [
+        {
+          "id": "r1",
+          "text": "High-frequency trading"
+        },
+        {
+          "id": "r2",
+          "text": "Inter-process communication"
+        },
+        {
+          "id": "r3",
+          "text": "Round-trip time"
+        },
+        {
+          "id": "r4",
+          "text": "Just-in-time compilation"
+        },
+        {
+          "id": "r5",
+          "text": "Garbage collection"
+        }
+      ],
+      "answer": {
+        "hft": "r1",
+        "ipc": "r2",
+        "rtt": "r3",
+        "jit": "r4",
+        "gc": "r5"
+      },
+      "explanation": "From the notes glossary — jitter sources in managed runtimes."
+    },
+    {
+      "id": "sbe-vs-json",
+      "type": "single",
+      "prompt": "For ultra-low-latency market data, why avoid JSON on the hot path?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Parsing/allocation/jitter vs fixed-layout binary schemas (e.g. SBE)"
+        },
+        {
+          "id": "b",
+          "text": "JSON cannot represent numbers"
+        },
+        {
+          "id": "c",
+          "text": "Binary protocols cannot cross a network"
+        },
+        {
+          "id": "d",
+          "text": "JSON is always smaller"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Deterministic schemas beat text parsing under μs budgets."
+    },
+    {
+      "id": "cold-vs-hot",
+      "type": "single",
+      "prompt": "What is a hot path vs cold path split?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Keep latency-critical work free of logging/alloc/IO; push bookkeeping elsewhere"
+        },
+        {
+          "id": "b",
+          "text": "Compile only hot files"
+        },
+        {
+          "id": "c",
+          "text": "Run cold code on GPU only"
+        },
+        {
+          "id": "d",
+          "text": "Hot path means commented-out code"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Trading engines: order path vs reporting/telemetry."
+    },
+    {
+      "id": "unique-array",
+      "type": "single",
+      "prompt": "How do you correctly manage a dynamic array with unique_ptr?",
+      "options": [
+        {
+          "id": "a",
+          "text": "unique_ptr<T[]> or unique_ptr<T, void(*)(T*)> with delete[] deleter"
+        },
+        {
+          "id": "b",
+          "text": "unique_ptr<T> always uses delete[]"
+        },
+        {
+          "id": "c",
+          "text": "shared_ptr only"
+        },
+        {
+          "id": "d",
+          "text": "malloc without unique_ptr"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Array form or custom deleter; plain unique_ptr<T> uses delete."
+    },
+    {
+      "id": "enable-shared",
+      "type": "single",
+      "prompt": "When is enable_shared_from_this needed?",
+      "options": [
+        {
+          "id": "a",
+          "text": "To safely create shared_ptr to this from a member function when already owned by shared_ptr"
+        },
+        {
+          "id": "b",
+          "text": "To make unique_ptr copyable"
+        },
+        {
+          "id": "c",
+          "text": "To disable weak_ptr"
+        },
+        {
+          "id": "d",
+          "text": "Always for every class"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Avoid shared_ptr(this) which creates an independent control block."
+    },
+    {
+      "id": "aliasing-ctor",
+      "type": "single",
+      "prompt": "What does shared_ptr's aliasing constructor allow?",
+      "options": [
+        {
+          "id": "a",
+          "text": "shared_ptr that shares ownership with another but points to a subobject"
+        },
+        {
+          "id": "b",
+          "text": "Creating unique_ptr from weak_ptr"
+        },
+        {
+          "id": "c",
+          "text": "Ignoring deleters"
+        },
+        {
+          "id": "d",
+          "text": "Turning weak_ptr into unique_ptr"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Useful for pointers into members while keeping parent alive."
+    },
+    {
+      "id": "const-method",
+      "type": "single",
+      "prompt": "A const member function may:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Modify mutable members and call other const methods; not non-mutable non-static data"
+        },
+        {
+          "id": "b",
+          "text": "Freely assign all members"
+        },
+        {
+          "id": "c",
+          "text": "Never read members"
+        },
+        {
+          "id": "d",
+          "text": "Only be virtual"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Bit-level const with mutable escape hatch."
+    },
+    {
+      "id": "mutable-use",
+      "type": "single",
+      "prompt": "Typical legitimate use of mutable?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Caching/lazy fields in logically const methods, or mutexes for const thread-safe reads"
+        },
+        {
+          "id": "b",
+          "text": "Making all state public"
+        },
+        {
+          "id": "c",
+          "text": "Disabling const forever"
+        },
+        {
+          "id": "d",
+          "text": "Replacing atomic"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Logical constness vs bitwise constness."
+    },
+    {
+      "id": "explicit-bool",
+      "type": "single",
+      "prompt": "Why make operator bool explicit?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Avoid unintended implicit conversions in arithmetic/overload resolution"
+        },
+        {
+          "id": "b",
+          "text": "To allow if(x) only via static_cast always failing"
+        },
+        {
+          "id": "c",
+          "text": "Required by the linker"
+        },
+        {
+          "id": "d",
+          "text": "To enable coroutines"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Contextual conversions still allow if (ptr)."
+    },
+    {
+      "id": "final-override",
+      "type": "single",
+      "prompt": "What does final on a virtual method do?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Prevents further overriding in derived classes"
+        },
+        {
+          "id": "b",
+          "text": "Makes the method constexpr"
+        },
+        {
+          "id": "c",
+          "text": "Deletes the method"
+        },
+        {
+          "id": "d",
+          "text": "Forces inline"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Also final on a class seals inheritance."
+    },
+    {
+      "id": "override-keyword",
+      "type": "single",
+      "prompt": "Why use override?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Compiler checks you actually override a virtual; catches signature mismatches"
+        },
+        {
+          "id": "b",
+          "text": "It changes access to public"
+        },
+        {
+          "id": "c",
+          "text": "It enables ADL"
+        },
+        {
+          "id": "d",
+          "text": "It is required for templates"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Without it, silent new overload bugs."
+    },
+    {
+      "id": "slice-problem",
+      "type": "single",
+      "prompt": "What is object slicing?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Assigning/passing derived by value as base, dropping derived parts"
+        },
+        {
+          "id": "b",
+          "text": "Using span on arrays"
+        },
+        {
+          "id": "c",
+          "text": "SIMD lane splits"
+        },
+        {
+          "id": "d",
+          "text": "Linking only half an object file"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Prefer references/pointers/smart pointers to polymorphic objects."
+    },
+    {
+      "id": "vptr-size",
+      "type": "single",
+      "prompt": "A polymorphic object typically stores what extra per-instance data?",
+      "options": [
+        {
+          "id": "a",
+          "text": "A vptr (pointer to vtable) on common ABIs"
+        },
+        {
+          "id": "b",
+          "text": "The full source code"
+        },
+        {
+          "id": "c",
+          "text": "A copy of all base classes' source"
+        },
+        {
+          "id": "d",
+          "text": "Nothing ever"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Plus possible multiple vptrs with MI."
+    },
+    {
+      "id": "diamond-problem",
+      "type": "single",
+      "prompt": "How does C++ address the diamond inheritance problem?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Virtual inheritance to share a single base subobject"
+        },
+        {
+          "id": "b",
+          "text": "Deleting all bases"
+        },
+        {
+          "id": "c",
+          "text": "Only macros"
+        },
+        {
+          "id": "d",
+          "text": "Forbidding inheritance"
+        }
+      ],
+      "answer": "a",
+      "explanation": "virtual public Base."
+    },
+    {
+      "id": "crtp-use",
+      "type": "single",
+      "prompt": "CRTP is mainly used for:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Static polymorphism / mixin behavior without virtual calls"
+        },
+        {
+          "id": "b",
+          "text": "Runtime reflection only"
+        },
+        {
+          "id": "c",
+          "text": "Replacing the preprocessor entirely"
+        },
+        {
+          "id": "d",
+          "text": "GPU drivers"
+        }
+      ],
+      "answer": "a",
+      "explanation": "template<class D> struct Base { ... static_cast<D*>(this) ... }."
+    },
+    {
+      "id": "type-erasure",
+      "type": "single",
+      "prompt": "std::function is an example of:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Type erasure of callable objects with potential allocation/overhead"
+        },
+        {
+          "id": "b",
+          "text": "A concept"
+        },
+        {
+          "id": "c",
+          "text": "A linker script"
+        },
+        {
+          "id": "d",
+          "text": "An atomic"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Know allocation/SBO tradeoffs in interviews."
+    },
+    {
+      "id": "small-buffer",
+      "type": "single",
+      "prompt": "What is SBO/SSO?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Small buffer/string optimization storing short data in-object to avoid heap"
+        },
+        {
+          "id": "b",
+          "text": "Stack buffer overflow"
+        },
+        {
+          "id": "c",
+          "text": "Static binary only"
+        },
+        {
+          "id": "d",
+          "text": "Shared buffer ownership"
+        }
+      ],
+      "answer": "a",
+      "explanation": "std::string / some function impls."
+    },
+    {
+      "id": "move-only-type",
+      "type": "single",
+      "prompt": "Which standard type is move-only?",
+      "options": [
+        {
+          "id": "a",
+          "text": "std::unique_ptr<T>"
+        },
+        {
+          "id": "b",
+          "text": "std::shared_ptr<T>"
+        },
+        {
+          "id": "c",
+          "text": "int"
+        },
+        {
+          "id": "d",
+          "text": "std::string_view"
+        }
+      ],
+      "answer": "a",
+      "explanation": "shared_ptr is copyable; string_view is copyable non-owning."
+    },
+    {
+      "id": "vector-bool",
+      "type": "single",
+      "prompt": "Why is vector<bool> special/problematic?",
+      "options": [
+        {
+          "id": "a",
+          "text": "It is a space-optimized proxy container, not a regular container of bool objects"
+        },
+        {
+          "id": "b",
+          "text": "It stores 128-bit bools"
+        },
+        {
+          "id": "c",
+          "text": "It cannot resize"
+        },
+        {
+          "id": "d",
+          "text": "It is lock-free"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Proxies break pointer/reference assumptions."
+    },
+    {
+      "id": "string-sso-move",
+      "type": "single",
+      "prompt": "After moving a std::string, why might it still look non-empty on some impls?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Moved-from is unspecified; SSO may leave a non-empty valid string"
+        },
+        {
+          "id": "b",
+          "text": "Move must clear always by standard for string"
+        },
+        {
+          "id": "c",
+          "text": "Move copies always"
+        },
+        {
+          "id": "d",
+          "text": "UB always"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Do not rely on empty-after-move for string."
+    },
+    {
+      "id": "launder",
+      "type": "single",
+      "prompt": "std::launder is related to:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Lifetime/placement-new and pointer provenance when storage is reused"
+        },
+        {
+          "id": "b",
+          "text": "Formatting strings"
+        },
+        {
+          "id": "c",
+          "text": "Networking endianness only"
+        },
+        {
+          "id": "d",
+          "text": "Mutex priority"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Advanced lifetime topic for seniors."
+    },
+    {
+      "id": "start-lifetime",
+      "type": "single",
+      "prompt": "C++23 start_lifetime_as helps with:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Explicitly starting object lifetimes on raw storage (e.g. networking buffers)"
+        },
+        {
+          "id": "b",
+          "text": "Starting threads"
+        },
+        {
+          "id": "c",
+          "text": "Starting the linker"
+        },
+        {
+          "id": "d",
+          "text": "GUI apps"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Replaces some launder/reinterpret patterns carefully."
+    },
+    {
+      "id": "bit-cast",
+      "type": "single",
+      "prompt": "std::bit_cast (C++20) provides:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Safe value-preserving reinterpretation between trivially copyable types of equal size"
+        },
+        {
+          "id": "b",
+          "text": "Dynamic polymorphism"
+        },
+        {
+          "id": "c",
+          "text": "File mapping"
+        },
+        {
+          "id": "d",
+          "text": "Coroutine transforms"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Better than memcpy hacks for type punning when allowed."
+    },
+    {
+      "id": "assume-aligned",
+      "type": "single",
+      "prompt": "Why care about alignment for SIMD loads?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Misaligned accesses may be slower or fault depending on ISA/API"
+        },
+        {
+          "id": "b",
+          "text": "Alignment never matters on any CPU"
+        },
+        {
+          "id": "c",
+          "text": "Only GC cares"
+        },
+        {
+          "id": "d",
+          "text": "Alignment disables caches"
+        }
+      ],
+      "answer": "a",
+      "explanation": "aligned_alloc / alignas / assume_aligned."
+    },
+    {
+      "id": "branch-predict",
+      "type": "single",
+      "prompt": "How can branches hurt low-latency loops?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Mispredicts flush pipelines; data-dependent branches add jitter"
+        },
+        {
+          "id": "b",
+          "text": "Branches always accelerate SIMD"
+        },
+        {
+          "id": "c",
+          "text": "CPUs ignore branches"
+        },
+        {
+          "id": "d",
+          "text": "Only interpreted languages mispredict"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Prefer branchless techniques carefully after measuring."
+    },
+    {
+      "id": "syscall-cost",
+      "type": "single",
+      "prompt": "Why avoid syscalls on the trading hot path?",
+      "options": [
+        {
+          "id": "a",
+          "text": "User/kernel transitions and kernel work add large unpredictable latency"
+        },
+        {
+          "id": "b",
+          "text": "Syscalls are free"
+        },
+        {
+          "id": "c",
+          "text": "Syscalls run in SIMD registers only"
+        },
+        {
+          "id": "d",
+          "text": "They disable atomics"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Batch IO; kernel bypass for extremes."
+    },
+    {
+      "id": "page-fault",
+      "type": "single",
+      "prompt": "Why do page faults matter in latency-sensitive code?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Demand paging on first touch causes multi-μs/ms stalls"
+        },
+        {
+          "id": "b",
+          "text": "They only occur in Java"
+        },
+        {
+          "id": "c",
+          "text": "They speed up atomics"
+        },
+        {
+          "id": "d",
+          "text": "They are compile errors"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Warm up / mlock / prefault critical arenas."
+    },
+    {
+      "id": "cpu-pinning",
+      "type": "single",
+      "prompt": "Pinning threads to cores helps by:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Reducing migrations and stabilizing cache locality"
+        },
+        {
+          "id": "b",
+          "text": "Increasing context switches always"
+        },
+        {
+          "id": "c",
+          "text": "Disabling caches"
+        },
+        {
+          "id": "d",
+          "text": "Making code incorrect"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Common HFT ops practice with isolation."
+    },
+    {
+      "id": "huge-pages",
+      "type": "single",
+      "prompt": "Huge pages can help latency by:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Reducing TLB misses for large working sets"
+        },
+        {
+          "id": "b",
+          "text": "Increasing page faults always"
+        },
+        {
+          "id": "c",
+          "text": "Replacing RAM"
+        },
+        {
+          "id": "d",
+          "text": "Removing the need for alignment"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Trade memory fragmentation/ops complexity."
+    },
+    {
+      "id": "bounded-queue",
+      "type": "single",
+      "prompt": "Why prefer bounded queues in backpressured systems?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Finite capacity forces load shedding/blocking instead of unbounded RAM growth"
+        },
+        {
+          "id": "b",
+          "text": "Unbounded queues never OOM"
+        },
+        {
+          "id": "c",
+          "text": "Bounded queues forbid multiple producers"
+        },
+        {
+          "id": "d",
+          "text": "They disable atomics"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Pair with drop/slow-down policies."
+    },
+    {
+      "id": "spsc-vs-mpmc",
+      "type": "single",
+      "prompt": "Why is SPSC simpler/faster than MPMC?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Single producer/consumer avoids CAS contention on shared indices"
+        },
+        {
+          "id": "b",
+          "text": "MPMC needs no atomics"
+        },
+        {
+          "id": "c",
+          "text": "SPSC cannot be correct"
+        },
+        {
+          "id": "d",
+          "text": "SPSC requires locks always"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Shard into SPSC lanes when possible."
+    },
+    {
+      "id": "happens-before",
+      "type": "single",
+      "prompt": "Acquire/release establish what relationship?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Synchronizes-with / happens-before edges for visibility of prior writes"
+        },
+        {
+          "id": "b",
+          "text": "Numerical ordering of integers only"
+        },
+        {
+          "id": "c",
+          "text": "File locks"
+        },
+        {
+          "id": "d",
+          "text": "Compilation order"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Core of the C++ memory model."
+    },
+    {
+      "id": "data-race-def",
+      "type": "single",
+      "prompt": "A data race is:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Concurrent conflicting non-atomic accesses with at least one write, without sync — UB"
+        },
+        {
+          "id": "b",
+          "text": "Any use of mutexes"
+        },
+        {
+          "id": "c",
+          "text": "Only Java terminology"
+        },
+        {
+          "id": "d",
+          "text": "A benign warning"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Atomics or mutexes remove the race."
+    },
+    {
+      "id": "move-semantics-multi",
+      "type": "multi",
+      "prompt": "Which are true about move semantics?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Moves can transfer resources instead of deep-copying"
+        },
+        {
+          "id": "b",
+          "text": "std::move is a cast to rvalue, not a move by itself"
+        },
+        {
+          "id": "c",
+          "text": "Moved-from objects may be reused after assignment"
+        },
+        {
+          "id": "d",
+          "text": "Move always zeros all bytes of the source"
+        }
+      ],
+      "answer": [
+        "a",
+        "b",
+        "c"
+      ],
+      "explanation": "Zeroing is not generally required."
+    },
+    {
+      "id": "cpp17-if-constexpr",
+      "type": "multi",
+      "prompt": "Which are true about if constexpr?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The discarded branch is not instantiated"
+        },
+        {
+          "id": "b",
+          "text": "It enables compile-time branching in templates"
+        },
+        {
+          "id": "c",
+          "text": "It turns the enclosing function into consteval"
+        },
+        {
+          "id": "d",
+          "text": "It requires C++17"
+        }
+      ],
+      "answer": [
+        "a",
+        "b",
+        "d"
+      ],
+      "explanation": "Does not imply consteval."
+    },
+    {
+      "id": "modules-multi",
+      "type": "multi",
+      "prompt": "Potential benefits of C++20 modules include:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Faster builds / better isolation vs headers"
+        },
+        {
+          "id": "b",
+          "text": "Fewer macro leakage problems"
+        },
+        {
+          "id": "c",
+          "text": "Replacing the need for any build system overnight in all codebases"
+        },
+        {
+          "id": "d",
+          "text": "Explicit export/import interfaces"
+        }
+      ],
+      "answer": [
+        "a",
+        "b",
+        "d"
+      ],
+      "explanation": "Adoption is still tooling-sensitive."
+    },
+    {
+      "id": "coroutine-multi",
+      "type": "multi",
+      "prompt": "C++20 coroutines:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Use co_await/co_yield/co_return"
+        },
+        {
+          "id": "b",
+          "text": "Can suspend without blocking a thread (with proper infra)"
+        },
+        {
+          "id": "c",
+          "text": "Automatically make all code lock-free"
+        },
+        {
+          "id": "d",
+          "text": "Need a promise/awaitable machinery"
+        }
+      ],
+      "answer": [
+        "a",
+        "b",
+        "d"
+      ],
+      "explanation": "Not a free concurrency lunch."
+    },
+    {
+      "id": "sanitizers-multi",
+      "type": "multi",
+      "prompt": "Useful sanitizers for C++:",
+      "options": [
+        {
+          "id": "a",
+          "text": "AddressSanitizer"
+        },
+        {
+          "id": "b",
+          "text": "UndefinedBehaviorSanitizer"
+        },
+        {
+          "id": "c",
+          "text": "ThreadSanitizer"
+        },
+        {
+          "id": "d",
+          "text": "JSONSanitizer as a standard Clang tool"
+        }
+      ],
+      "answer": [
+        "a",
+        "b",
+        "c"
+      ],
+      "explanation": "No standard JSONSanitizer."
+    },
+    {
+      "id": "link-opt-order",
+      "type": "order",
+      "prompt": "Order a typical PGO workflow.",
+      "items": [
+        {
+          "id": "a",
+          "text": "Build with profile generate"
+        },
+        {
+          "id": "b",
+          "text": "Run representative workload"
+        },
+        {
+          "id": "c",
+          "text": "Rebuild with profile use"
+        },
+        {
+          "id": "d",
+          "text": "Benchmark/validate"
+        }
+      ],
+      "answer": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "explanation": "Generate → exercise → use → verify."
+    },
+    {
+      "id": "mutex-lock-order",
+      "type": "order",
+      "prompt": "Order a correct unique_lock + CV wait pattern.",
+      "items": [
+        {
+          "id": "a",
+          "text": "Lock the mutex"
+        },
+        {
+          "id": "b",
+          "text": "while (!predicate) cv.wait(lock)"
+        },
+        {
+          "id": "c",
+          "text": "Perform critical work"
+        },
+        {
+          "id": "d",
+          "text": "Unlock (RAII end of scope)"
+        }
+      ],
+      "answer": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "explanation": "Always re-check the predicate."
+    },
+    {
+      "id": "cast-safety",
+      "type": "match",
+      "prompt": "Match cast to relative safety intent.",
+      "left": [
+        {
+          "id": "a",
+          "text": "dynamic_cast"
+        },
+        {
+          "id": "b",
+          "text": "static_cast"
+        },
+        {
+          "id": "c",
+          "text": "reinterpret_cast"
+        },
+        {
+          "id": "d",
+          "text": "const_cast"
+        }
+      ],
+      "right": [
+        {
+          "id": "r1",
+          "text": "Safest runtime-checked downcast among these"
+        },
+        {
+          "id": "r2",
+          "text": "Related conversions without runtime check"
+        },
+        {
+          "id": "r3",
+          "text": "Most dangerous bit-level reinterpretation"
+        },
+        {
+          "id": "r4",
+          "text": "Only for constness; still easy to cause UB if misused"
+        }
+      ],
+      "answer": {
+        "a": "r1",
+        "b": "r2",
+        "c": "r3",
+        "d": "r4"
+      },
+      "explanation": "Prefer the weakest cast that expresses intent."
+    },
+    {
+      "id": "queue-kinds",
+      "type": "match",
+      "prompt": "Match queue acronyms.",
+      "left": [
+        {
+          "id": "a",
+          "text": "SPSC"
+        },
+        {
+          "id": "b",
+          "text": "MPSC"
+        },
+        {
+          "id": "c",
+          "text": "SPMC"
+        },
+        {
+          "id": "d",
+          "text": "MPMC"
+        }
+      ],
+      "right": [
+        {
+          "id": "r1",
+          "text": "Single producer single consumer"
+        },
+        {
+          "id": "r2",
+          "text": "Multiple producer single consumer"
+        },
+        {
+          "id": "r3",
+          "text": "Single producer multiple consumer"
+        },
+        {
+          "id": "r4",
+          "text": "Multiple producer multiple consumer"
+        }
+      ],
+      "answer": {
+        "a": "r1",
+        "b": "r2",
+        "c": "r3",
+        "d": "r4"
+      },
+      "explanation": "From ring-buffer exercise vocabulary."
+    },
+    {
+      "id": "optional-cloze",
+      "type": "cloze",
+      "prompt": "To engage an optional with a value in-place, use emplace or assign; to reset use {{m}}().",
+      "blanks": {
+        "m": [
+          "reset"
+        ]
+      },
+      "explanation": "reset() disengages the optional.",
+      "choices": [
+        "reset",
+        "clear",
+        "free",
+        "delete"
+      ]
+    },
+    {
+      "id": "variant-cloze",
+      "type": "cloze",
+      "prompt": "Visit a std::variant with std::{{v}}.",
+      "blanks": {
+        "v": [
+          "visit"
+        ]
+      },
+      "explanation": "std::visit applies a visitor to the active alternative.",
+      "choices": [
+        "visit",
+        "get",
+        "any_cast",
+        "invoke"
+      ]
+    },
+    {
+      "id": "span-cloze",
+      "type": "cloze",
+      "prompt": "A non-owning contiguous view in C++20 is std::{{t}}.",
+      "blanks": {
+        "t": [
+          "span"
+        ]
+      },
+      "explanation": "span = pointer + size.",
+      "choices": [
+        "span",
+        "view",
+        "slice",
+        "array"
+      ]
+    },
+    {
+      "id": "ranges-cloze",
+      "type": "cloze",
+      "prompt": "Lazy range adaptors live in the std::{{n}} namespace.",
+      "blanks": {
+        "n": [
+          "views"
+        ]
+      },
+      "explanation": "Compose with operator|.",
+      "choices": [
+        "views",
+        "ranges",
+        "lazy",
+        "adaptors"
+      ]
+    },
+    {
+      "id": "atomic-cloze",
+      "type": "cloze",
+      "prompt": "The default memory order for atomic ops is memory_order_{{o}}.",
+      "blanks": {
+        "o": [
+          "seq_cst"
+        ]
+      },
+      "explanation": "Strongest default; override when proven safe.",
+      "choices": [
+        "seq_cst",
+        "relaxed",
+        "acquire",
+        "release"
+      ]
+    },
+    {
+      "id": "ll-one-liner",
+      "type": "reveal",
+      "prompt": "Give a one-sentence definition of low-latency trading engineering.",
+      "answerText": "Engineering predictable reaction time from market event to decision/order with ruthless control of microseconds, allocations, and jitter on the critical path — especially tail latency.",
+      "explanation": "Match the notes' interview one-liner."
+    },
+    {
+      "id": "ocr-30s",
+      "type": "reveal",
+      "prompt": "Give a ~30s OCR system design pitch.",
+      "answerText": "Upload synchronously to object storage with fast ACK and document_id; OCR asynchronously via queues; split small vs huge PDFs into lanes to avoid HOL blocking; chunk giant PDFs; store text/metadata; serve via query API; scale workers on lag; DLQ for poison.",
+      "explanation": "From the notes' 30s formula."
+    },
+    {
+      "id": "sfinae-pitch",
+      "type": "reveal",
+      "prompt": "Explain SFINAE in two sentences for an interviewer.",
+      "answerText": "Substitution Failure Is Not An Error: if substituting template arguments into a candidate's signature fails, that candidate is discarded instead of failing the whole compile. Prefer concepts in C++20, but know enable_if/void_t for legacy code; body errors are still hard errors.",
+      "explanation": "Notes' talk track."
+    },
+    {
+      "id": "allocator-aware",
+      "type": "single",
+      "prompt": "Why do some containers take Allocators?",
+      "options": [
+        {
+          "id": "a",
+          "text": "To customize memory allocation strategy (pools, pmr)"
+        },
+        {
+          "id": "b",
+          "text": "To set CPU affinity"
+        },
+        {
+          "id": "c",
+          "text": "Required for all ints"
+        },
+        {
+          "id": "d",
+          "text": "To disable move"
+        }
+      ],
+      "answer": "a",
+      "explanation": "pmr::polymorphic_allocator is a modern angle."
+    },
+    {
+      "id": "pmr-mono",
+      "type": "single",
+      "prompt": "std::pmr::monotonic_buffer_resource is useful when:",
+      "options": [
+        {
+          "id": "a",
+          "text": "You want bump allocation freed all-at-once for a phase"
+        },
+        {
+          "id": "b",
+          "text": "You need frequent individual frees interleaved"
+        },
+        {
+          "id": "c",
+          "text": "You forbid arenas"
+        },
+        {
+          "id": "d",
+          "text": "Only for strings"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Great for request/frame arenas."
+    },
+    {
+      "id": "string-view-api",
+      "type": "single",
+      "prompt": "Prefer string_view in APIs when:",
+      "options": [
+        {
+          "id": "a",
+          "text": "You need a non-owning view and lifetime is clearly borrower-bounded"
+        },
+        {
+          "id": "b",
+          "text": "You need to own and mutate the characters"
+        },
+        {
+          "id": "c",
+          "text": "You need guaranteed null-termination always"
+        },
+        {
+          "id": "d",
+          "text": "You store it long-term pointing at temporaries"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Document lifetime; don't store dangling views."
+    },
+    {
+      "id": "gsl-span",
+      "type": "single",
+      "prompt": "Historically, gsl::span related to std::span how?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Guidelines Support Library span inspired the standard span"
+        },
+        {
+          "id": "b",
+          "text": "They are unrelated"
+        },
+        {
+          "id": "c",
+          "text": "gsl replaced the standard"
+        },
+        {
+          "id": "d",
+          "text": "span is only in Boost"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Know the lineage briefly."
+    },
+    {
+      "id": "undefined-vs-unspec",
+      "type": "single",
+      "prompt": "Unspecified vs undefined behavior:",
+      "options": [
+        {
+          "id": "a",
+          "text": "UB: no requirements, nasal demons; unspecified: some valid choices, not an error"
+        },
+        {
+          "id": "b",
+          "text": "They mean the same"
+        },
+        {
+          "id": "c",
+          "text": "Unspecified always crashes"
+        },
+        {
+          "id": "d",
+          "text": "UB is required to trap"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Moved-from state is often unspecified, not UB."
+    },
+    {
+      "id": "as-if-rule",
+      "type": "single",
+      "prompt": "The as-if rule allows compilers to:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Transform code so observable behavior matches the abstract machine"
+        },
+        {
+          "id": "b",
+          "text": "Ignore all atomics"
+        },
+        {
+          "id": "c",
+          "text": "Reorder across acquire/release freely always"
+        },
+        {
+          "id": "d",
+          "text": "Delete main"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Optimizations must preserve observable behavior (with concurrency caveats)."
+    },
+    {
+      "id": "iota-view",
+      "type": "single",
+      "prompt": "std::views::iota produces:",
+      "options": [
+        {
+          "id": "a",
+          "text": "A lazily generated sequence of increasing values"
+        },
+        {
+          "id": "b",
+          "text": "A random shuffle"
+        },
+        {
+          "id": "c",
+          "text": "A file mapping"
+        },
+        {
+          "id": "d",
+          "text": "A mutex"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Useful without materializing vectors."
+    },
+    {
+      "id": "partial-sort",
+      "type": "single",
+      "prompt": "ranges::partial_sort is useful to:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Order only the first k elements as if fully sorted"
+        },
+        {
+          "id": "b",
+          "text": "Sort nothing"
+        },
+        {
+          "id": "c",
+          "text": "Only reverse ranges"
+        },
+        {
+          "id": "d",
+          "text": "Compile templates"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Notes' second-max example."
+    },
+    {
+      "id": "binary-search-pre",
+      "type": "single",
+      "prompt": "lower_bound requires:",
+      "options": [
+        {
+          "id": "a",
+          "text": "A partitioned/sorted range with respect to the order used"
+        },
+        {
+          "id": "b",
+          "text": "A hash table"
+        },
+        {
+          "id": "c",
+          "text": "Unsorted input always"
+        },
+        {
+          "id": "d",
+          "text": "GPU"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Precondition of binary search family."
+    },
+    {
+      "id": "stable-sort",
+      "type": "single",
+      "prompt": "stable_sort differs from sort by:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Preserving relative order of equivalent elements"
+        },
+        {
+          "id": "b",
+          "text": "Being always faster"
+        },
+        {
+          "id": "c",
+          "text": "Working only on lists"
+        },
+        {
+          "id": "d",
+          "text": "Being constexpr only"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Trade time/memory for stability."
+    },
+    {
+      "id": "remove-erase",
+      "type": "single",
+      "prompt": "The erase-remove idiom does what?",
+      "options": [
+        {
+          "id": "a",
+          "text": "remove shifts unwanted elements; erase shrinks the container"
+        },
+        {
+          "id": "b",
+          "text": "Deletes the vector object"
+        },
+        {
+          "id": "c",
+          "text": "Only works on map"
+        },
+        {
+          "id": "d",
+          "text": "Is undefined"
+        }
+      ],
+      "answer": "a",
+      "explanation": "v.erase(remove(...), v.end()); — or C++20 erase/ erase_if."
+    },
+    {
+      "id": "string-reserve",
+      "type": "single",
+      "prompt": "Calling string/vector reserve:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Preallocates capacity to avoid reallocation churn"
+        },
+        {
+          "id": "b",
+          "text": "Changes size to capacity"
+        },
+        {
+          "id": "c",
+          "text": "Frees all memory"
+        },
+        {
+          "id": "d",
+          "text": "Locks a mutex"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Hot-path prep technique."
+    },
+    {
+      "id": "shrink-to-fit",
+      "type": "single",
+      "prompt": "shrink_to_fit is:",
+      "options": [
+        {
+          "id": "a",
+          "text": "A non-binding request to reduce capacity to size"
+        },
+        {
+          "id": "b",
+          "text": "Mandatory always"
+        },
+        {
+          "id": "c",
+          "text": "A delete[]"
+        },
+        {
+          "id": "d",
+          "text": "noexcept(false) always required"
+        }
+      ],
+      "answer": "a",
+      "explanation": "May be a no-op."
+    },
+    {
+      "id": "initializer-list",
+      "type": "single",
+      "prompt": "std::initializer_list pitfalls include:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Backing array lifetime tied to the full-expression; dangling if stored"
+        },
+        {
+          "id": "b",
+          "text": "It owns heap forever"
+        },
+        {
+          "id": "c",
+          "text": "It is a vector"
+        },
+        {
+          "id": "d",
+          "text": "It disables RVO"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Don't store initializer_list long-term."
+    },
+    {
+      "id": "narrowing",
+      "type": "single",
+      "prompt": "Braced initialization helps by:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Forbidding many narrowing conversions"
+        },
+        {
+          "id": "b",
+          "text": "Allowing all narrowings silently"
+        },
+        {
+          "id": "c",
+          "text": "Only working for floats"
+        },
+        {
+          "id": "d",
+          "text": "Removing constructors"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Most vexing parse is a related gotcha with parentheses."
+    },
+    {
+      "id": "most-vexing",
+      "type": "single",
+      "prompt": "The most vexing parse is:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Ambiguity where a declaration looks like a function declaration"
+        },
+        {
+          "id": "b",
+          "text": "A linker error only"
+        },
+        {
+          "id": "c",
+          "text": "A runtime UB only"
+        },
+        {
+          "id": "d",
+          "text": "JSON parsing"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Use braces to construct."
+    },
+    {
+      "id": "explicit-conversion",
+      "type": "single",
+      "prompt": "explicit operator T() prevents:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Implicit conversion sequences using that operator"
+        },
+        {
+          "id": "b",
+          "text": "All casts including static_cast"
+        },
+        {
+          "id": "c",
+          "text": "Copy elision"
+        },
+        {
+          "id": "d",
+          "text": "Templates"
+        }
+      ],
+      "answer": "a",
+      "explanation": "static_cast may still work."
+    },
+    {
+      "id": "friend-inject",
+      "type": "single",
+      "prompt": "Friend functions defined in-class are:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Hidden friends found via ADL — good for operators"
+        },
+        {
+          "id": "b",
+          "text": "Always global with external linkage pollution"
+        },
+        {
+          "id": "c",
+          "text": "Virtual"
+        },
+        {
+          "id": "d",
+          "text": "Concepts"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Modern operator design."
+    },
+    {
+      "id": "nodiscard-reason",
+      "type": "single",
+      "prompt": "[[nodiscard]] on a factory helps because:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Ignoring the return (e.g. error codes/handles) becomes a warning"
+        },
+        {
+          "id": "b",
+          "text": "It speeds CPU"
+        },
+        {
+          "id": "c",
+          "text": "It forces inline"
+        },
+        {
+          "id": "d",
+          "text": "It enables SIMD"
+        }
+      ],
+      "answer": "a",
+      "explanation": "API misuse prevention."
+    },
+    {
+      "id": "fallthrough-attr",
+      "type": "single",
+      "prompt": "[[fallthrough]] communicates:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Intentional switch fall-through to silence warnings"
+        },
+        {
+          "id": "b",
+          "text": "Coroutine suspend"
+        },
+        {
+          "id": "c",
+          "text": "Thread yield"
+        },
+        {
+          "id": "d",
+          "text": "Module export"
+        }
+      ],
+      "answer": "a",
+      "explanation": "C++17 attribute."
+    },
+    {
+      "id": "maybe-unused",
+      "type": "single",
+      "prompt": "[[maybe_unused]] is for:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Marking intentionally unused entities to silence warnings"
+        },
+        {
+          "id": "b",
+          "text": "Deleting entities"
+        },
+        {
+          "id": "c",
+          "text": "GPU offload"
+        },
+        {
+          "id": "d",
+          "text": "Networking"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Useful in asserts/NDEBUG branches."
+    },
+    {
+      "id": "has-include",
+      "type": "single",
+      "prompt": "__has_include allows:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Conditional inclusion based on header availability"
+        },
+        {
+          "id": "b",
+          "text": "Runtime dynamic loading of .so always"
+        },
+        {
+          "id": "c",
+          "text": "Linking Python"
+        },
+        {
+          "id": "d",
+          "text": "Disabling concepts"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Feature-detection macro."
+    },
+    {
+      "id": "three-way",
+      "type": "single",
+      "prompt": "operator<=> typically helps by:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Generating relational operators from a single comparison"
+        },
+        {
+          "id": "b",
+          "text": "Replacing hash functions"
+        },
+        {
+          "id": "c",
+          "text": "Sorting without comparisons"
+        },
+        {
+          "id": "d",
+          "text": "Making all types POD"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Spaceship operator."
+    },
+    {
+      "id": "defaulted-spaceship",
+      "type": "single",
+      "prompt": "Defaulted <=> can:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Compare members lexicographically when eligible"
+        },
+        {
+          "id": "b",
+          "text": "Compare vtables only"
+        },
+        {
+          "id": "c",
+          "text": "Ignore all members"
+        },
+        {
+          "id": "d",
+          "text": "Only work for unions"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Know constraints briefly."
+    },
+    {
+      "id": "byte-type",
+      "type": "single",
+      "prompt": "std::byte represents:",
+      "options": [
+        {
+          "id": "a",
+          "text": "A distinct byte type for opaque storage, not an integer/character alias"
+        },
+        {
+          "id": "b",
+          "text": "A bool"
+        },
+        {
+          "id": "c",
+          "text": "A mutex"
+        },
+        {
+          "id": "d",
+          "text": "A float16"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Prefer for raw memory APIs."
+    },
+    {
+      "id": "to-address",
+      "type": "single",
+      "prompt": "std::to_address is useful with:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Fancy pointers / obtaining raw pointer from pointer-like objects"
+        },
+        {
+          "id": "b",
+          "text": "DNS"
+        },
+        {
+          "id": "c",
+          "text": "JSON"
+        },
+        {
+          "id": "d",
+          "text": "GUI"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Iterator/pointer abstraction."
+    },
+    {
+      "id": "assume",
+      "type": "single",
+      "prompt": "Compiler assumptions / [[assume]] (C++23) are dangerous because:",
+      "options": [
+        {
+          "id": "a",
+          "text": "If false, they can cause UB — use only when proven"
+        },
+        {
+          "id": "b",
+          "text": "They always trap"
+        },
+        {
+          "id": "c",
+          "text": "They disable optimizations"
+        },
+        {
+          "id": "d",
+          "text": "They are required"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Senior-level caution."
+    },
+    {
+      "id": "likely-attr",
+      "type": "single",
+      "prompt": "[[likely]]/[[unlikely]] hint:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Branch probability to the compiler"
+        },
+        {
+          "id": "b",
+          "text": "Memory order"
+        },
+        {
+          "id": "c",
+          "text": "Thread priority"
+        },
+        {
+          "id": "d",
+          "text": "Heap size"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Hints, not guarantees."
+    },
+    {
+      "id": "hardware-constructive",
+      "type": "single",
+      "prompt": "std::hardware_destructive_interference_size helps:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Pad to avoid false sharing portably"
+        },
+        {
+          "id": "b",
+          "text": "Set TCP window"
+        },
+        {
+          "id": "c",
+          "text": "Format strings"
+        },
+        {
+          "id": "d",
+          "text": "Parse JSON"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Cache-line aware layout."
+    },
+    {
+      "id": "jthread",
+      "type": "single",
+      "prompt": "std::jthread (C++20) improves on thread by:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Joining on destruction and supporting stop tokens"
+        },
+        {
+          "id": "b",
+          "text": "Being lock-free always"
+        },
+        {
+          "id": "c",
+          "text": "Running on GPU"
+        },
+        {
+          "id": "d",
+          "text": "Replacing atomics"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Safer RAII threading."
+    },
+    {
+      "id": "stop-token",
+      "type": "single",
+      "prompt": "stop_token is for:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Cooperative cancellation signaling"
+        },
+        {
+          "id": "b",
+          "text": "Killing the OS"
+        },
+        {
+          "id": "c",
+          "text": "Memory fences only"
+        },
+        {
+          "id": "d",
+          "text": "File EOF"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Pair with jthread."
+    },
+    {
+      "id": "barrier-latch",
+      "type": "single",
+      "prompt": "latch/barrier (C++20) provide:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Single-use or reusable thread coordination points"
+        },
+        {
+          "id": "b",
+          "text": "File locks"
+        },
+        {
+          "id": "c",
+          "text": "SIMD masks"
+        },
+        {
+          "id": "d",
+          "text": "JSON schemas"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Higher-level sync than raw CV for phases."
+    },
+    {
+      "id": "counting-semaphore",
+      "type": "single",
+      "prompt": "counting_semaphore is useful for:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Limiting concurrent access to a pool of resources"
+        },
+        {
+          "id": "b",
+          "text": "Sorting"
+        },
+        {
+          "id": "c",
+          "text": "Formatting"
+        },
+        {
+          "id": "d",
+          "text": "Modules"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Concurrency throttle."
+    },
+    {
+      "id": "atomic-wait",
+      "type": "single",
+      "prompt": "atomic wait/notify (C++20) enables:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Efficient waiting on atomic value changes without a full mutex/CV in some patterns"
+        },
+        {
+          "id": "b",
+          "text": "TCP"
+        },
+        {
+          "id": "c",
+          "text": "GUI events only"
+        },
+        {
+          "id": "d",
+          "text": "Compilation speedups"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Futex-like for atomics."
+    },
+    {
+      "id": "shared-mutex",
+      "type": "single",
+      "prompt": "shared_mutex allows:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Multiple concurrent readers or one writer"
+        },
+        {
+          "id": "b",
+          "text": "Only writers"
+        },
+        {
+          "id": "c",
+          "text": "No locking"
+        },
+        {
+          "id": "d",
+          "text": "GPU locks"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Read-mostly structures."
+    },
+    {
+      "id": "scoped-lock",
+      "type": "single",
+      "prompt": "std::scoped_lock is preferred for multi-mutex locking because:",
+      "options": [
+        {
+          "id": "a",
+          "text": "It uses deadlock-avoidance lock algorithms for multiple locks"
+        },
+        {
+          "id": "b",
+          "text": "It never locks"
+        },
+        {
+          "id": "c",
+          "text": "It only works with atomics"
+        },
+        {
+          "id": "d",
+          "text": "It replaces unique_ptr"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Avoid hand-rolled lock ordering bugs."
+    },
+    {
+      "id": "defer-lock",
+      "type": "single",
+      "prompt": "unique_lock with defer_lock:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Associates a mutex without locking immediately"
+        },
+        {
+          "id": "b",
+          "text": "Destroys the mutex"
+        },
+        {
+          "id": "c",
+          "text": "Makes mutex recursive"
+        },
+        {
+          "id": "d",
+          "text": "Is C-only"
+        }
+      ],
+      "answer": "a",
+      "explanation": "For adopt/try strategies."
+    },
+    {
+      "id": "recursive-mutex",
+      "type": "single",
+      "prompt": "recursive_mutex costs:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Reentrancy convenience with overhead; often a design smell"
+        },
+        {
+          "id": "b",
+          "text": "Nothing ever"
+        },
+        {
+          "id": "c",
+          "text": "Mandatory for all locks"
+        },
+        {
+          "id": "d",
+          "text": "Faster than mutex always"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Prefer restructuring call graphs."
+    },
+    {
+      "id": "timed-mutex",
+      "type": "single",
+      "prompt": "try_lock_for helps:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Bound waiting to avoid indefinite blocking"
+        },
+        {
+          "id": "b",
+          "text": "Speeding CPU-bound math"
+        },
+        {
+          "id": "c",
+          "text": "Formatting time"
+        },
+        {
+          "id": "d",
+          "text": "Endian swaps"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Latency-aware locking."
+    },
+    {
+      "id": "call-once",
+      "type": "single",
+      "prompt": "std::call_once is for:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Thread-safe one-time initialization"
+        },
+        {
+          "id": "b",
+          "text": "Calling main once"
+        },
+        {
+          "id": "c",
+          "text": "Disabling threads"
+        },
+        {
+          "id": "d",
+          "text": "SIMD"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Alternative to function-local statics in some designs."
+    },
+    {
+      "id": "meyers-singleton",
+      "type": "single",
+      "prompt": "Function-local static initialization is:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Thread-safe since C++11"
+        },
+        {
+          "id": "b",
+          "text": "Never thread-safe"
+        },
+        {
+          "id": "c",
+          "text": "Undefined"
+        },
+        {
+          "id": "d",
+          "text": "Only for POD"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Still debate singleton use."
+    },
+    {
+      "id": "static-init-order",
+      "type": "single",
+      "prompt": "Static initialization order fiasco is mitigated by:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Function-local statics / constinit / careful design"
+        },
+        {
+          "id": "b",
+          "text": "More global ctors"
+        },
+        {
+          "id": "c",
+          "text": "Ignoring linkage"
+        },
+        {
+          "id": "d",
+          "text": "Using new only"
+        }
+      ],
+      "answer": "a",
+      "explanation": "constinit guarantees constant init."
+    },
+    {
+      "id": "vtable-mi",
+      "type": "single",
+      "prompt": "Multiple inheritance can cause:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Multiple vptrs and more complex layout/thunks"
+        },
+        {
+          "id": "b",
+          "text": "Simpler layout always"
+        },
+        {
+          "id": "c",
+          "text": "No polymorphism"
+        },
+        {
+          "id": "d",
+          "text": "Automatic CRTP"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Know costs in interviews."
+    },
+    {
+      "id": "empty-base",
+      "type": "single",
+      "prompt": "Empty Base Optimization (EBO) allows:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Empty bases to occupy no extra size in many cases"
+        },
+        {
+          "id": "b",
+          "text": "Empty members to always be zero size before C++20"
+        },
+        {
+          "id": "c",
+          "text": "Removing all padding forever"
+        },
+        {
+          "id": "d",
+          "text": "Disabling ABI"
+        }
+      ],
+      "answer": "a",
+      "explanation": "[[no_unique_address]] helps empty members in C++20."
+    },
+    {
+      "id": "no-unique-address",
+      "type": "single",
+      "prompt": "[[no_unique_address]] enables:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Potential overlapping of empty data members like EBO"
+        },
+        {
+          "id": "b",
+          "text": "Unique addresses for all bytes always"
+        },
+        {
+          "id": "c",
+          "text": "Thread IDs"
+        },
+        {
+          "id": "d",
+          "text": "GPU memory"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Allocator compressed-pair style."
+    },
+    {
+      "id": "expected-vs-optional",
+      "type": "single",
+      "prompt": "How does std::expected (C++23) differ in intent from optional?",
+      "options": [
+        {
+          "id": "a",
+          "text": "expected models value-or-error; optional models value-or-absent"
+        },
+        {
+          "id": "b",
+          "text": "They are identical"
+        },
+        {
+          "id": "c",
+          "text": "optional stores exceptions only"
+        },
+        {
+          "id": "d",
+          "text": "expected forbids errors"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Error handling vocabulary type."
+    },
+    {
+      "id": "mdspan",
+      "type": "single",
+      "prompt": "std::mdspan (C++23) provides:",
+      "options": [
+        {
+          "id": "a",
+          "text": "A multidimensional array view over contiguous/strided data"
+        },
+        {
+          "id": "b",
+          "text": "A mutex"
+        },
+        {
+          "id": "c",
+          "text": "A JSON DOM"
+        },
+        {
+          "id": "d",
+          "text": "A linker"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Scientific/compute layouts."
+    },
+    {
+      "id": "flat-map",
+      "type": "single",
+      "prompt": "std::flat_map motivation:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Cache-friendly sorted vector-backed associative container"
+        },
+        {
+          "id": "b",
+          "text": "Lock-free hashmap always"
+        },
+        {
+          "id": "c",
+          "text": "GPU map"
+        },
+        {
+          "id": "d",
+          "text": "Replacing filesystem"
+        }
+      ],
+      "answer": "a",
+      "explanation": "C++23 associative container alternative."
+    },
+    {
+      "id": "generator",
+      "type": "single",
+      "prompt": "std::generator (C++23) is:",
+      "options": [
+        {
+          "id": "a",
+          "text": "A standard coroutine generator range"
+        },
+        {
+          "id": "b",
+          "text": "A random number device only"
+        },
+        {
+          "id": "c",
+          "text": "A build system"
+        },
+        {
+          "id": "d",
+          "text": "An atomic"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Coroutine-based sequences."
+    },
+    {
+      "id": "print-cxx23",
+      "type": "single",
+      "prompt": "std::print / println (C++23) aim to:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Provide format-based console output without iostream ceremony"
+        },
+        {
+          "id": "b",
+          "text": "Replace the memory model"
+        },
+        {
+          "id": "c",
+          "text": "Compile TeX"
+        },
+        {
+          "id": "d",
+          "text": "Pin threads"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Based on format."
+    },
+    {
+      "id": "stacktrace",
+      "type": "single",
+      "prompt": "std::stacktrace helps:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Capture readable stack traces for diagnostics"
+        },
+        {
+          "id": "b",
+          "text": "Optimize SIMD"
+        },
+        {
+          "id": "c",
+          "text": "Parse XML"
+        },
+        {
+          "id": "d",
+          "text": "Schedule GPUs"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Debuggability feature."
+    },
+    {
+      "id": "lifetime-buffers",
+      "type": "single",
+      "prompt": "Lifetime/start_lifetime APIs matter in networking because:",
+      "options": [
+        {
+          "id": "a",
+          "text": "Raw socket buffers need well-defined object lifetimes before typed access"
+        },
+        {
+          "id": "b",
+          "text": "Sockets forbid bytes"
+        },
+        {
+          "id": "c",
+          "text": "Lifetime is optional in C++"
+        },
+        {
+          "id": "d",
+          "text": "Only Java needs this"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Senior systems C++ topic."
+    },
+    {
+      "id": "invariants-talk",
+      "type": "single",
+      "prompt": "Why are pre/postconditions still an interview topic?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Expressing invariants and failing fast improves correctness discussions"
+        },
+        {
+          "id": "b",
+          "text": "They replace types"
+        },
+        {
+          "id": "c",
+          "text": "They disable UB by law"
+        },
+        {
+          "id": "d",
+          "text": "They are mandatory in C++11"
+        }
+      ],
+      "answer": "a",
+      "explanation": "Design for invariants."
+    }
+  ]
+}

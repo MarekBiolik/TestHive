@@ -27,7 +27,10 @@ import com.testhive.core.domain.Deck
 fun HomeScreen(
     decks: List<Deck>,
     selectedIds: Set<String>,
+    importMessage: String? = null,
     onToggle: (String) -> Unit,
+    onImportDeck: () -> Unit,
+    onDismissImportMessage: () -> Unit = {},
     onStart: () -> Unit,
 ) {
     Column(
@@ -39,9 +42,18 @@ fun HomeScreen(
     ) {
         Text("Keep learning.", style = MaterialTheme.typography.headlineLarge)
         Text(
-            "Pick a deck or mix — short cards, immediate feedback.",
+            "Pick a deck or mix — short cards, immediate feedback. Import another JSON bank anytime without rebuilding the app.",
             style = MaterialTheme.typography.bodyMedium,
         )
+        if (importMessage != null) {
+            GlassPanel(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onDismissImportMessage),
+            ) {
+                Text(importMessage, style = MaterialTheme.typography.bodyMedium)
+            }
+        }
         Spacer(Modifier.height(4.dp))
         LazyColumn(
             modifier = Modifier.weight(1f),
@@ -74,6 +86,10 @@ fun HomeScreen(
                 }
             }
         }
+        NeonPrimaryButton(
+            text = "Import deck JSON",
+            onClick = onImportDeck,
+        )
         NeonPrimaryButton(
             text = if (selectedIds.size <= 1) "Start session" else "Start mix (${selectedIds.size})",
             onClick = onStart,

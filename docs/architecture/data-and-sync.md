@@ -4,11 +4,18 @@
 
 | Data | Source of truth | Location |
 |------|-----------------|----------|
-| Deck content | Imported JSON file (after successful validation) | Copied into local app storage |
+| Deck content | Imported JSON file (after successful validation) | Copied into local app storage (`filesDir/decks/*.json` on Android) |
+| Bundled starter packs | Repo `docs/decks/*.json` (copied into `apps/android/.../assets/decks/`) | Seeded once into local storage on first launch if missing |
 | Progress / attempts | App runtime | Local store per device or browser |
 | Contract | Docs + samples | Repository `docs/` |
 
 There is **no** server-side source of truth in foundations ([ADR 0002](../decisions/0002-local-only-storage.md)).
+
+## Adding decks without app code changes
+
+1. **Runtime (no rebuild):** use **Import deck JSON** in the Android home screen (or write a valid `formatVersion: 1` file into the app’s local `decks/` store). Re-import of the same `id` replaces content.
+2. **Bundled in the APK (no Kotlin changes):** drop another `*.json` under `assets/decks/`. `FileDeckLibrary.ensureBundledDecks()` loads every file in that folder. Shipping it still requires packaging a new APK, but not editing Java/Kotlin.
+3. Keep a small importer fixture in [`docs/samples/cpp-modern.json`](../samples/cpp-modern.json); product banks live under [`docs/decks/`](../decks/).
 
 ## Sync
 

@@ -32,6 +32,11 @@ pnpm web:build
 
 On Windows use `.\gradlew.bat` instead of `./gradlew`.
 
-## Sample deck
+## Question banks
 
-[docs/samples/cpp-modern.json](docs/samples/cpp-modern.json) — modern C++ practice bank for the first product slice.
+| Path | Role |
+|------|------|
+| [docs/decks/cpp-senior-interview.json](docs/decks/cpp-senior-interview.json) | Bundled product bank (~200 senior C++ interview cards) |
+| [docs/samples/cpp-modern.json](docs/samples/cpp-modern.json) | Small importer/CI fixture (all templates) |
+
+Android seeds every `assets/decks/*.json` into local storage, and can **Import deck JSON** at runtime without rebuilding. Add another bank by dropping a `formatVersion: 1` file into `docs/decks/` + `assets/decks/` (or importing on device). See [docs/architecture/data-and-sync.md](docs/architecture/data-and-sync.md).

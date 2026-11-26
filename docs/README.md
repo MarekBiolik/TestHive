@@ -11,7 +11,7 @@ Reading order for newcomers and agents.
 7. [Roadmap](roadmap.md)
 8. [Decisions (ADRs)](decisions/)
 9. [Conventions](conventions/)
-10. Samples: [cpp-modern.json](samples/cpp-modern.json) · [grading-cases.json](samples/grading-cases.json)
+10. Samples / decks: [cpp-modern.json](samples/cpp-modern.json) · [cpp-senior-interview.json](decks/cpp-senior-interview.json) · [grading-cases.json](samples/grading-cases.json)
 
 ## Specs
 

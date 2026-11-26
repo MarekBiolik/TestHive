@@ -7,7 +7,7 @@ No pipeline in foundations. Target behavior once scaffold exists:
 | Build | `:core`, `:apps:android`, `apps/web` |
 | Unit tests | KMP grading + TS grading (shared fixtures) |
 | Lint / format | Kotlin + web toolchains |
-| Deck sample | Validate `docs/samples/cpp-modern.json` against the importer |
+| Deck JSON | Validate `docs/samples/*.json` fixtures and `docs/decks/*.json` banks (`tools/validate_deck.py` + importer) |
 
 ## Deploy
 

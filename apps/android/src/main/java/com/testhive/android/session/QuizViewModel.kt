@@ -11,6 +11,7 @@ import com.testhive.core.domain.OrderQuestion
 import com.testhive.core.domain.RevealQuestion
 import com.testhive.core.domain.SingleQuestion
 import com.testhive.core.grading.Grader
+import com.testhive.core.import.DeckImportResult
 import com.testhive.core.library.selectedQuestions
 import com.testhive.core.session.SessionQueue
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,6 +31,9 @@ class QuizViewModel(
     private val _session = MutableStateFlow<SessionUiState>(SessionUiState.Empty)
     val session: StateFlow<SessionUiState> = _session.asStateFlow()
 
+    private val _importMessage = MutableStateFlow<String?>(null)
+    val importMessage: StateFlow<String?> = _importMessage.asStateFlow()
+
     init {
         refreshDecks()
     }
@@ -40,6 +44,23 @@ class QuizViewModel(
         if (_selected.value.isEmpty() && list.isNotEmpty()) {
             _selected.value = setOf(list.first().id)
         }
+    }
+
+    fun importDeckJson(text: String) {
+        when (val result = container.decks.importFromText(text)) {
+            is DeckImportResult.Ok -> {
+                refreshDecks()
+                _selected.update { it + result.deck.id }
+                _importMessage.value = "Imported “${result.deck.title}” (${result.deck.questions.size} questions)."
+            }
+            is DeckImportResult.Err -> {
+                _importMessage.value = "Import failed: ${result.message}"
+            }
+        }
+    }
+
+    fun clearImportMessage() {
+        _importMessage.value = null
     }
 
     fun toggleDeck(id: String) {
