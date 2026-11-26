@@ -46,6 +46,7 @@ fun SessionScreen(
     onRevealKnew: (Boolean) -> Unit,
     onSubmit: () -> Unit,
     onNext: () -> Unit,
+    onMarkEasy: () -> Unit = {},
     onExit: () -> Unit,
 ) {
     Box(
@@ -56,7 +57,10 @@ fun SessionScreen(
         when (state) {
             is SessionUiState.Empty -> {
                 Column(Modifier.padding(20.dp)) {
-                    Text("No questions in this selection.", style = MaterialTheme.typography.titleLarge)
+                    Text(
+                        "No questions left — all marked easy, or nothing selected. Reset progress on Home to bring cards back.",
+                        style = MaterialTheme.typography.titleLarge,
+                    )
                     NeonPrimaryButton("Back", onExit, Modifier.padding(top = 16.dp))
                 }
             }
@@ -70,6 +74,7 @@ fun SessionScreen(
                 onRevealKnew = onRevealKnew,
                 onSubmit = onSubmit,
                 onNext = onNext,
+                onMarkEasy = onMarkEasy,
                 onExit = onExit,
             )
         }
@@ -135,6 +140,7 @@ private fun ActiveSession(
     onRevealKnew: (Boolean) -> Unit,
     onSubmit: () -> Unit,
     onNext: () -> Unit,
+    onMarkEasy: () -> Unit,
     onExit: () -> Unit,
 ) {
     val q = state.current.question
@@ -211,6 +217,7 @@ private fun ActiveSession(
             showCheck = q !is RevealQuestion,
             onSubmit = onSubmit,
             onNext = onNext,
+            onMarkEasy = onMarkEasy,
         )
     }
 }
@@ -222,6 +229,7 @@ private fun FeedbackActionBar(
     showCheck: Boolean,
     onSubmit: () -> Unit,
     onNext: () -> Unit,
+    onMarkEasy: () -> Unit,
 ) {
     when (phase) {
         CardPhase.Answering -> {
@@ -256,6 +264,11 @@ private fun FeedbackActionBar(
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
                     color = accent,
+                )
+                NeonPrimaryButton(
+                    text = "Easy / Got it",
+                    onClick = onMarkEasy,
+                    containerColor = NeonGlassTokens.GlassSolid,
                 )
                 NeonPrimaryButton(
                     text = "Continue",

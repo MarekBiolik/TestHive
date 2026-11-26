@@ -61,6 +61,7 @@ class MainActivity : ComponentActivity() {
                     )
                     val decks by vm.decks.collectAsState()
                     val selected by vm.selected.collectAsState()
+                    val selectionStats by vm.selectionStats.collectAsState()
                     val session by vm.session.collectAsState()
                     val importMessage by vm.importMessage.collectAsState()
 
@@ -69,6 +70,7 @@ class MainActivity : ComponentActivity() {
                             HomeScreen(
                                 decks = decks,
                                 selectedIds = selected,
+                                selectionStats = selectionStats,
                                 importMessage = importMessage,
                                 onToggle = vm::toggleDeck,
                                 onImportDeck = {
@@ -76,6 +78,7 @@ class MainActivity : ComponentActivity() {
                                     openDeckJson.launch("application/json")
                                 },
                                 onDismissImportMessage = vm::clearImportMessage,
+                                onResetProgress = vm::resetSelectedProgress,
                                 onStart = {
                                     vm.startSession()
                                     navController.navigate("session")
@@ -92,8 +95,10 @@ class MainActivity : ComponentActivity() {
                                 onRevealKnew = vm::submitReveal,
                                 onSubmit = vm::submit,
                                 onNext = vm::next,
+                                onMarkEasy = vm::markEasyAndNext,
                                 onExit = {
                                     vm.exitSession()
+                                    vm.refreshDecks()
                                     navController.popBackStack("home", inclusive = false)
                                 },
                             )

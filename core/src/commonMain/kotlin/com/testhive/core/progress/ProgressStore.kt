@@ -7,7 +7,11 @@ interface ProgressStore {
     fun get(deckId: String, questionId: String): QuestionProgress?
     fun allForDecks(deckIds: Set<String>): List<QuestionProgress>
     fun record(deckId: String, questionId: String, correct: Boolean, answeredAtEpochMs: Long)
+    fun markMastered(deckId: String, questionId: String, answeredAtEpochMs: Long)
     fun removeDeck(deckId: String)
+    fun resetDecks(deckIds: Set<String>) {
+        deckIds.forEach { removeDeck(it) }
+    }
 }
 
 class InMemoryProgressStore : ProgressStore {
@@ -31,6 +35,21 @@ class InMemoryProgressStore : ProgressStore {
             wrongCount = (prev?.wrongCount ?: 0) + if (correct) 0 else 1,
             lastResult = if (correct) LastResult.Correct else LastResult.Wrong,
             lastAnsweredAtEpochMs = answeredAtEpochMs,
+            mastered = prev?.mastered ?: false,
+        )
+    }
+
+    override fun markMastered(deckId: String, questionId: String, answeredAtEpochMs: Long) {
+        val k = key(deckId, questionId)
+        val prev = rows[k]
+        rows[k] = QuestionProgress(
+            deckId = deckId,
+            questionId = questionId,
+            correctCount = prev?.correctCount ?: 0,
+            wrongCount = prev?.wrongCount ?: 0,
+            lastResult = prev?.lastResult,
+            lastAnsweredAtEpochMs = answeredAtEpochMs,
+            mastered = true,
         )
     }
 

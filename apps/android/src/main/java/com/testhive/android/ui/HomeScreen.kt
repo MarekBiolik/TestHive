@@ -17,9 +17,14 @@ import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.testhive.android.session.SelectionStats
 import com.testhive.android.theme.NeonGlassTokens
 import com.testhive.core.domain.Deck
 
@@ -27,12 +32,16 @@ import com.testhive.core.domain.Deck
 fun HomeScreen(
     decks: List<Deck>,
     selectedIds: Set<String>,
+    selectionStats: SelectionStats = SelectionStats(),
     importMessage: String? = null,
     onToggle: (String) -> Unit,
     onImportDeck: () -> Unit,
     onDismissImportMessage: () -> Unit = {},
+    onResetProgress: () -> Unit = {},
     onStart: () -> Unit,
 ) {
+    var resetArmed by remember(selectedIds) { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -42,7 +51,7 @@ fun HomeScreen(
     ) {
         Text("Keep learning.", style = MaterialTheme.typography.headlineLarge)
         Text(
-            "Pick a deck or mix — short cards, immediate feedback. Import another JSON bank anytime without rebuilding the app.",
+            "Pick a deck or mix — short cards, immediate feedback. Mark Easy / Got it in a session to hide a card until you reset progress.",
             style = MaterialTheme.typography.bodyMedium,
         )
         if (importMessage != null) {
@@ -53,6 +62,13 @@ fun HomeScreen(
             ) {
                 Text(importMessage, style = MaterialTheme.typography.bodyMedium)
             }
+        }
+        if (selectedIds.isNotEmpty() && selectionStats.total > 0) {
+            Text(
+                "${selectionStats.remaining} remaining · ${selectionStats.mastered} easy / got it · ${selectionStats.total} total",
+                style = MaterialTheme.typography.labelSmall,
+                color = NeonGlassTokens.ActionAccent,
+            )
         }
         Spacer(Modifier.height(4.dp))
         LazyColumn(
@@ -89,11 +105,25 @@ fun HomeScreen(
         NeonPrimaryButton(
             text = "Import deck JSON",
             onClick = onImportDeck,
+            containerColor = NeonGlassTokens.GlassSolid,
+        )
+        NeonPrimaryButton(
+            text = if (resetArmed) "Tap again to reset progress" else "Reset progress",
+            onClick = {
+                if (!resetArmed) {
+                    resetArmed = true
+                } else {
+                    onResetProgress()
+                    resetArmed = false
+                }
+            },
+            enabled = selectedIds.isNotEmpty(),
+            containerColor = if (resetArmed) NeonGlassTokens.FeedbackError else NeonGlassTokens.GlassSolid,
         )
         NeonPrimaryButton(
             text = if (selectedIds.size <= 1) "Start session" else "Start mix (${selectedIds.size})",
             onClick = onStart,
-            enabled = selectedIds.isNotEmpty(),
+            enabled = selectedIds.isNotEmpty() && selectionStats.remaining > 0,
         )
     }
 }

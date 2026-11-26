@@ -111,6 +111,8 @@ data class QuestionProgress(
     val wrongCount: Int = 0,
     val lastResult: LastResult? = null,
     val lastAnsweredAtEpochMs: Long? = null,
+    /** When true, the question is excluded from sessions until deck progress is reset. */
+    val mastered: Boolean = false,
 )
 
 data class QuestionRef(
