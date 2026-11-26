@@ -4,11 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -22,6 +24,18 @@ import com.testhive.android.ui.HomeScreen
 import com.testhive.android.ui.SessionScreen
 
 class MainActivity : ComponentActivity() {
+    private val pendingImport = mutableStateOf<((String) -> Unit)?>(null)
+
+    private val openDeckJson = registerForActivityResult(
+        ActivityResultContracts.GetContent(),
+    ) { uri ->
+        val consume = pendingImport.value
+        pendingImport.value = null
+        if (uri == null || consume == null) return@registerForActivityResult
+        val text = contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
+        if (text != null) consume(text)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -48,13 +62,20 @@ class MainActivity : ComponentActivity() {
                     val decks by vm.decks.collectAsState()
                     val selected by vm.selected.collectAsState()
                     val session by vm.session.collectAsState()
+                    val importMessage by vm.importMessage.collectAsState()
 
                     NavHost(navController = navController, startDestination = "home") {
                         composable("home") {
                             HomeScreen(
                                 decks = decks,
                                 selectedIds = selected,
+                                importMessage = importMessage,
                                 onToggle = vm::toggleDeck,
+                                onImportDeck = {
+                                    pendingImport.value = vm::importDeckJson
+                                    openDeckJson.launch("application/json")
+                                },
+                                onDismissImportMessage = vm::clearImportMessage,
                                 onStart = {
                                     vm.startSession()
                                     navController.navigate("session")

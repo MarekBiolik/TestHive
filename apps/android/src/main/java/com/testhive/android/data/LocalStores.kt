@@ -52,12 +52,34 @@ class FileDeckLibrary(
         File(dir, "$deckId.json").delete()
     }
 
-    fun ensureBundledSample() {
-        if (get("cpp-modern") != null) return
-        val text = context.assets.open("cpp-modern.json").bufferedReader().use { it.readText() }
-        when (val result = DeckImporter.import(text)) {
-            is DeckImportResult.Ok -> upsert(result.deck)
-            is DeckImportResult.Err -> error("Bundled sample invalid: ${result.message}")
+    /**
+     * Seeds every JSON pack under assets/decks that is not already in local storage.
+     * Adding a new bundled bank = drop a JSON file under assets/decks (no Kotlin change).
+     * Runtime packs can also be imported via importFromText without rebuilding the APK.
+     */
+    fun ensureBundledDecks() {
+        val names = context.assets.list("decks").orEmpty().filter { it.endsWith(".json") }
+        for (name in names) {
+            val text = context.assets.open("decks/$name").bufferedReader().use { it.readText() }
+            when (val result = DeckImporter.import(text)) {
+                is DeckImportResult.Ok -> {
+                    if (get(result.deck.id) == null) {
+                        upsert(result.deck)
+                    }
+                }
+                is DeckImportResult.Err ->
+                    error("Bundled deck decks/$name invalid: ${result.message}")
+            }
+        }
+    }
+
+    fun importFromText(text: String): DeckImportResult {
+        return when (val result = DeckImporter.import(text)) {
+            is DeckImportResult.Ok -> {
+                upsert(result.deck)
+                result
+            }
+            is DeckImportResult.Err -> result
         }
     }
 }

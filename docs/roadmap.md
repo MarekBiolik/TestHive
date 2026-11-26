@@ -21,7 +21,7 @@ Phases are sequential for the critical path; some later items may overlap once s
 - Local deck store + progress keyed by `deckId` + `questionId`.
 - Home: list decks, select one or mix, start feed.
 - Card loop for all templates; immediate feedback.
-- Ship bundled sample [cpp-modern.json](samples/cpp-modern.json) for first-run practice.
+- Ship bundled banks from [decks/](decks/) (seeded from `assets/decks/*.json`); keep [cpp-modern.json](samples/cpp-modern.json) as a small importer fixture.
 
 ## Phase 3 — Web parity on the same contract
 
