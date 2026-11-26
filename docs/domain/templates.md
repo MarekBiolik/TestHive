@@ -101,4 +101,4 @@ Self-graded open answer. App cannot compare objectively.
 
 ## Session queue (v1)
 
-Among eligible questions in the selected deck(s) (**exclude** `mastered`): prefer **unseen**, then **last wrong**, then **last right**, shuffling **within each bucket** at session start. Feedback uses a single **Got it** action that sets `mastered` and advances, until the user resets progress for the selected deck(s). Full SRS is [OQ-03](../open-questions.md).
+Among eligible questions in the selected deck(s) (**exclude** `mastered`): prefer **unseen**, then **last wrong**, then **last right**, shuffling **within each bucket** at session start. Feedback: optional **Got it** checkbox + **Continue**; if checked, Continue sets `mastered` (hidden until reset). Full SRS is [OQ-03](../open-questions.md).

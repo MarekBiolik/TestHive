@@ -94,7 +94,8 @@ class MainActivity : ComponentActivity() {
                                 onSetCloze = vm::setCloze,
                                 onRevealKnew = vm::submitReveal,
                                 onSubmit = vm::submit,
-                                onMarkEasy = vm::markEasyAndNext,
+                                onToggleGotIt = vm::toggleGotIt,
+                                onContinue = vm::continueFromFeedback,
                                 onExit = {
                                     vm.exitSession()
                                     vm.refreshDecks()

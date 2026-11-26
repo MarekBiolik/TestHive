@@ -2,6 +2,7 @@ package com.testhive.android.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,9 +14,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.testhive.android.session.CardPhase
@@ -45,7 +50,8 @@ fun SessionScreen(
     onSetCloze: (String, String) -> Unit,
     onRevealKnew: (Boolean) -> Unit,
     onSubmit: () -> Unit,
-    onMarkEasy: () -> Unit = {},
+    onToggleGotIt: () -> Unit = {},
+    onContinue: () -> Unit = {},
     onExit: () -> Unit,
 ) {
     Box(
@@ -57,7 +63,7 @@ fun SessionScreen(
             is SessionUiState.Empty -> {
                 Column(Modifier.padding(20.dp)) {
                     Text(
-                        "No questions left — all marked easy, or nothing selected. Reset progress on Home to bring cards back.",
+                        "No questions left — all marked Got it, or nothing selected. Reset progress on Home to bring cards back.",
                         style = MaterialTheme.typography.titleLarge,
                     )
                     NeonPrimaryButton("Back", onExit, Modifier.padding(top = 16.dp))
@@ -72,7 +78,8 @@ fun SessionScreen(
                 onSetCloze = onSetCloze,
                 onRevealKnew = onRevealKnew,
                 onSubmit = onSubmit,
-                onMarkEasy = onMarkEasy,
+                onToggleGotIt = onToggleGotIt,
+                onContinue = onContinue,
                 onExit = onExit,
             )
         }
@@ -137,7 +144,8 @@ private fun ActiveSession(
     onSetCloze: (String, String) -> Unit,
     onRevealKnew: (Boolean) -> Unit,
     onSubmit: () -> Unit,
-    onMarkEasy: () -> Unit,
+    onToggleGotIt: () -> Unit,
+    onContinue: () -> Unit,
     onExit: () -> Unit,
 ) {
     val q = state.current.question
@@ -211,9 +219,11 @@ private fun ActiveSession(
         FeedbackActionBar(
             phase = state.phase,
             correct = state.lastCorrect,
+            gotItChecked = state.gotItChecked,
             showCheck = q !is RevealQuestion,
             onSubmit = onSubmit,
-            onGotIt = onMarkEasy,
+            onToggleGotIt = onToggleGotIt,
+            onContinue = onContinue,
         )
     }
 }
@@ -222,9 +232,11 @@ private fun ActiveSession(
 private fun FeedbackActionBar(
     phase: CardPhase,
     correct: Boolean?,
+    gotItChecked: Boolean,
     showCheck: Boolean,
     onSubmit: () -> Unit,
-    onGotIt: () -> Unit,
+    onToggleGotIt: () -> Unit,
+    onContinue: () -> Unit,
 ) {
     when (phase) {
         CardPhase.Answering -> {
@@ -252,26 +264,77 @@ private fun FeedbackActionBar(
                         shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
                     )
                     .padding(horizontal = 20.dp, vertical = 18.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Text(
                     text = if (ok) "Correct" else "Incorrect",
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
                     color = accent,
                 )
-                NeonPrimaryButton(
-                    text = "Got it",
-                    onClick = onGotIt,
-                    containerColor = accent,
+                GotItCheckRow(
+                    checked = gotItChecked,
+                    accent = accent,
+                    onToggle = onToggleGotIt,
                 )
-                Text(
-                    text = "Hides this card until you reset progress",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = NeonGlassTokens.TextSecondary,
+                NeonPrimaryButton(
+                    text = "Continue",
+                    onClick = onContinue,
+                    containerColor = accent,
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun GotItCheckRow(
+    checked: Boolean,
+    accent: Color,
+    onToggle: () -> Unit,
+) {
+    val border = if (checked) accent.copy(alpha = 0.55f) else NeonGlassTokens.BorderGlass
+    val bg = if (checked) accent.copy(alpha = 0.14f) else NeonGlassTokens.Glass
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(bg, RoundedCornerShape(14.dp))
+            .border(1.dp, border, RoundedCornerShape(14.dp))
+            .clickable(onClick = onToggle)
+            .padding(horizontal = 10.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Checkbox(
+            checked = checked,
+            onCheckedChange = { onToggle() },
+            colors = CheckboxDefaults.colors(
+                checkedColor = accent,
+                uncheckedColor = NeonGlassTokens.TextSecondary,
+                checkmarkColor = NeonGlassTokens.Canvas,
+            ),
+        )
+        Column(Modifier.padding(start = 4.dp, end = 8.dp)) {
+            Text(
+                "Got it",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = NeonGlassTokens.TextPrimary,
+            )
+            Text(
+                "Hide until reset progress",
+                style = MaterialTheme.typography.labelSmall,
+                color = NeonGlassTokens.TextSecondary,
+            )
+        }
+        Spacer(Modifier.weight(1f))
+        Box(
+            modifier = Modifier
+                .size(10.dp)
+                .background(
+                    if (checked) accent else Color.Transparent,
+                    RoundedCornerShape(50),
+                ),
+        )
     }
 }
 

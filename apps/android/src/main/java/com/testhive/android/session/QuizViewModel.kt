@@ -118,16 +118,26 @@ class QuizViewModel(
         }
     }
 
-    fun markEasyAndNext() {
+    fun toggleGotIt() {
+        _session.update { state ->
+            val active = state as? SessionUiState.Active ?: return@update state
+            if (active.phase != CardPhase.Feedback) return@update state
+            active.copy(gotItChecked = !active.gotItChecked)
+        }
+    }
+
+    fun continueFromFeedback() {
         val active = _session.value as? SessionUiState.Active ?: return
         if (active.phase != CardPhase.Feedback) return
-        val ref = active.current
-        container.progress.markMastered(
-            deckId = ref.deckId,
-            questionId = ref.question.id,
-            answeredAtEpochMs = System.currentTimeMillis(),
-        )
-        refreshSelectionStats()
+        if (active.gotItChecked) {
+            val ref = active.current
+            container.progress.markMastered(
+                deckId = ref.deckId,
+                questionId = ref.question.id,
+                answeredAtEpochMs = System.currentTimeMillis(),
+            )
+            refreshSelectionStats()
+        }
         next()
     }
 
@@ -146,6 +156,7 @@ class QuizViewModel(
             orderIds = orderSeed,
             answered = answered,
             correctCount = correctCount,
+            gotItChecked = false,
         )
     }
 

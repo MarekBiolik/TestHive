@@ -24,6 +24,7 @@ sealed class SessionUiState {
         val matchPairs: Map<String, String> = emptyMap(),
         val clozeAnswers: Map<String, String> = emptyMap(),
         val lastCorrect: Boolean? = null,
+        val gotItChecked: Boolean = false,
         val answered: Int = 0,
         val correctCount: Int = 0,
     ) : SessionUiState() {

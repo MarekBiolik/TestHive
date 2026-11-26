@@ -51,7 +51,7 @@ fun HomeScreen(
     ) {
         Text("Keep learning.", style = MaterialTheme.typography.headlineLarge)
         Text(
-            "Pick a deck or mix — short cards, immediate feedback. Tap Got it to hide a card until you reset progress.",
+            "Pick a deck or mix — short cards, immediate feedback. Check Got it before Continue to hide a card until you reset progress.",
             style = MaterialTheme.typography.bodyMedium,
         )
         if (importMessage != null) {
