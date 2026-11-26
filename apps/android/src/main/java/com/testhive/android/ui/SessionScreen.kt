@@ -138,6 +138,8 @@ private fun ActiveSession(
     onExit: () -> Unit,
 ) {
     val q = state.current.question
+    val inFeedback = state.phase == CardPhase.Feedback
+    val correct = state.lastCorrect == true
     Column(Modifier.fillMaxSize()) {
         Row(
             modifier = Modifier
@@ -179,46 +181,87 @@ private fun ActiveSession(
                 }
             }
 
-            when (state.phase) {
-                CardPhase.Answering -> AnsweringBody(
-                    q = q,
-                    state = state,
-                    onToggleOption = onToggleOption,
-                    onReorder = onReorder,
-                    onSetMatch = onSetMatch,
-                    onSetCloze = onSetCloze,
-                    onRevealKnew = onRevealKnew,
-                )
-                CardPhase.Feedback -> FeedbackBody(q = q, correct = state.lastCorrect == true)
+            AnsweringBody(
+                q = q,
+                state = state,
+                locked = inFeedback,
+                onToggleOption = onToggleOption,
+                onReorder = onReorder,
+                onSetMatch = onSetMatch,
+                onSetCloze = onSetCloze,
+                onRevealKnew = onRevealKnew,
+            )
+
+            if (inFeedback && !correct) {
+                CorrectKeySummary(q)
+                q.explanation?.let {
+                    Text(it, style = MaterialTheme.typography.bodyLarge)
+                }
+            } else if (inFeedback && correct) {
+                q.explanation?.let {
+                    Text(it, style = MaterialTheme.typography.bodyLarge)
+                }
             }
             Spacer(Modifier.height(88.dp))
         }
 
-        // Sticky bottom primary action (popular quiz apps pattern)
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(NeonGlassTokens.Canvas.copy(alpha = 0.96f))
-                .padding(20.dp),
-        ) {
-            when (state.phase) {
-                CardPhase.Answering -> {
-                    if (q !is RevealQuestion) {
-                        NeonPrimaryButton("Check", onSubmit)
-                    }
+        FeedbackActionBar(
+            phase = state.phase,
+            correct = state.lastCorrect,
+            showCheck = q !is RevealQuestion,
+            onSubmit = onSubmit,
+            onNext = onNext,
+        )
+    }
+}
+
+@Composable
+private fun FeedbackActionBar(
+    phase: CardPhase,
+    correct: Boolean?,
+    showCheck: Boolean,
+    onSubmit: () -> Unit,
+    onNext: () -> Unit,
+) {
+    when (phase) {
+        CardPhase.Answering -> {
+            if (showCheck) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(NeonGlassTokens.Canvas.copy(alpha = 0.96f))
+                        .padding(20.dp),
+                ) {
+                    NeonPrimaryButton("Check", onSubmit)
                 }
-                CardPhase.Feedback -> {
-                    if (state.lastCorrect == true) {
-                        Text(
-                            "Correct — next up…",
-                            style = MaterialTheme.typography.labelLarge,
-                            color = NeonGlassTokens.FeedbackSuccess,
-                            modifier = Modifier.align(Alignment.Center),
-                        )
-                    } else {
-                        NeonPrimaryButton("Continue", onNext)
-                    }
-                }
+            }
+        }
+        CardPhase.Feedback -> {
+            val ok = correct == true
+            val accent = if (ok) NeonGlassTokens.FeedbackSuccess else NeonGlassTokens.FeedbackError
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(accent.copy(alpha = 0.16f))
+                    .border(
+                        width = 1.dp,
+                        color = accent.copy(alpha = 0.45f),
+                        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+                    )
+                    .padding(horizontal = 20.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Text(
+                    text = if (ok) "Correct!" else "Incorrect",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = accent,
+                )
+                NeonPrimaryButton(
+                    text = "Continue",
+                    onClick = onNext,
+                    containerColor = accent,
+                )
             }
         }
     }
@@ -228,6 +271,7 @@ private fun ActiveSession(
 private fun AnsweringBody(
     q: Question,
     state: SessionUiState.Active,
+    locked: Boolean,
     onToggleOption: (String) -> Unit,
     onReorder: (List<String>) -> Unit,
     onSetMatch: (String, String) -> Unit,
@@ -236,83 +280,107 @@ private fun AnsweringBody(
 ) {
     when (q) {
         is SingleQuestion -> q.options.forEach { opt ->
-            NeonAnswerRow(opt.text, opt.id in state.selectedOptions) { onToggleOption(opt.id) }
+            NeonAnswerRow(
+                text = opt.text,
+                selected = opt.id in state.selectedOptions,
+                tone = optionTone(
+                    optionId = opt.id,
+                    selected = opt.id in state.selectedOptions,
+                    correctIds = setOf(q.answer),
+                    locked = locked,
+                ),
+                enabled = !locked,
+            ) { onToggleOption(opt.id) }
         }
         is MultiQuestion -> {
             Text("Select all that apply", style = MaterialTheme.typography.labelSmall)
             q.options.forEach { opt ->
-                NeonAnswerRow(opt.text, opt.id in state.selectedOptions) { onToggleOption(opt.id) }
+                NeonAnswerRow(
+                    text = opt.text,
+                    selected = opt.id in state.selectedOptions,
+                    tone = optionTone(
+                        optionId = opt.id,
+                        selected = opt.id in state.selectedOptions,
+                        correctIds = q.answer.toSet(),
+                        locked = locked,
+                    ),
+                    enabled = !locked,
+                ) { onToggleOption(opt.id) }
             }
         }
-        is OrderQuestion -> DragReorderList(
-            ids = state.orderIds.ifEmpty { q.items.map { it.id } },
-            labelForId = { id -> q.items.first { it.id == id }.text },
-            onReorder = onReorder,
-        )
-        is MatchQuestion -> MatchControls(q, state.matchPairs, onSetMatch)
-        is ClozeQuestion -> ClozeControls(q, state.clozeAnswers, onSetCloze)
-        is RevealQuestion -> {
-            GlassPanel {
-                Text(q.answerText, style = MaterialTheme.typography.bodyLarge)
+        is OrderQuestion -> {
+            if (locked) {
+                val accent = if (state.lastCorrect == true) {
+                    NeonGlassTokens.FeedbackSuccess
+                } else {
+                    NeonGlassTokens.FeedbackError
+                }
+                GlassPanel(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .border(1.5.dp, accent.copy(alpha = 0.7f), RoundedCornerShape(16.dp)),
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        state.orderIds.ifEmpty { q.items.map { it.id } }.forEachIndexed { i, id ->
+                            Text(
+                                "${i + 1}. ${q.items.first { it.id == id }.text}",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = NeonGlassTokens.TextPrimary,
+                            )
+                        }
+                    }
+                }
+            } else {
+                DragReorderList(
+                    ids = state.orderIds.ifEmpty { q.items.map { it.id } },
+                    labelForId = { id -> q.items.first { it.id == id }.text },
+                    onReorder = onReorder,
+                )
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                NeonPrimaryButton("Knew it", { onRevealKnew(true) }, Modifier.weight(1f))
-                NeonPrimaryButton("Missed it", { onRevealKnew(false) }, Modifier.weight(1f))
+        }
+        is MatchQuestion -> MatchControls(q, state.matchPairs, onSetMatch, locked)
+        is ClozeQuestion -> ClozeControls(q, state.clozeAnswers, onSetCloze, locked)
+        is RevealQuestion -> {
+            if (!locked) {
+                GlassPanel {
+                    Text(q.answerText, style = MaterialTheme.typography.bodyLarge)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    NeonPrimaryButton("Knew it", { onRevealKnew(true) }, Modifier.weight(1f))
+                    NeonPrimaryButton("Missed it", { onRevealKnew(false) }, Modifier.weight(1f))
+                }
+            } else {
+                val accent = if (state.lastCorrect == true) {
+                    NeonGlassTokens.FeedbackSuccess
+                } else {
+                    NeonGlassTokens.FeedbackError
+                }
+                GlassPanel(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .border(1.5.dp, accent.copy(alpha = 0.7f), RoundedCornerShape(16.dp)),
+                ) {
+                    Text(q.answerText, style = MaterialTheme.typography.bodyLarge)
+                }
             }
         }
     }
 }
 
-@Composable
-private fun FeedbackBody(q: Question, correct: Boolean) {
-    if (correct) {
-        GlassPanel(
-            modifier = Modifier
-                .fillMaxWidth()
-                .shadow(
-                    elevation = 16.dp,
-                    shape = RoundedCornerShape(16.dp),
-                    ambientColor = NeonGlassTokens.FeedbackSuccess.copy(alpha = 0.35f),
-                    spotColor = NeonGlassTokens.FeedbackSuccess.copy(alpha = 0.35f),
-                ),
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    "Correct",
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = NeonGlassTokens.FeedbackSuccess,
-                )
-                q.explanation?.let { Text(it, style = MaterialTheme.typography.bodyLarge) }
-            }
-        }
-    } else {
-        GlassPanel(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(1.5.dp, NeonGlassTokens.FeedbackError.copy(alpha = 0.7f), RoundedCornerShape(16.dp))
-                .shadow(
-                    elevation = 18.dp,
-                    shape = RoundedCornerShape(16.dp),
-                    ambientColor = NeonGlassTokens.FeedbackError.copy(alpha = 0.4f),
-                    spotColor = NeonGlassTokens.FeedbackError.copy(alpha = 0.35f),
-                ),
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text(
-                    "Not quite",
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = NeonGlassTokens.FeedbackError,
-                )
-                Text(
-                    "Here’s the key — lock it in, then continue.",
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                CorrectKeySummary(q)
-                q.explanation?.let {
-                    Text(it, style = MaterialTheme.typography.bodyLarge)
-                }
-            }
-        }
+private fun optionTone(
+    optionId: String,
+    selected: Boolean,
+    correctIds: Set<String>,
+    locked: Boolean,
+): AnswerRowTone {
+    if (!locked) {
+        return if (selected) AnswerRowTone.Selected else AnswerRowTone.Neutral
+    }
+    val isCorrect = optionId in correctIds
+    return when {
+        isCorrect -> AnswerRowTone.Correct
+        selected -> AnswerRowTone.Incorrect
+        else -> AnswerRowTone.Neutral
     }
 }
 
@@ -353,13 +421,24 @@ private fun MatchControls(
     q: MatchQuestion,
     pairs: Map<String, String>,
     onSetMatch: (String, String) -> Unit,
+    locked: Boolean,
 ) {
     q.left.forEach { left ->
         Text(left.text, style = MaterialTheme.typography.titleLarge)
         q.right.forEach { right ->
+            val selected = pairs[left.id] == right.id
+            val correctRight = q.answer[left.id]
+            val tone = when {
+                !locked -> if (selected) AnswerRowTone.Selected else AnswerRowTone.Neutral
+                right.id == correctRight -> AnswerRowTone.Correct
+                selected -> AnswerRowTone.Incorrect
+                else -> AnswerRowTone.Neutral
+            }
             NeonAnswerRow(
                 text = right.text,
-                selected = pairs[left.id] == right.id,
+                selected = selected,
+                tone = tone,
+                enabled = !locked,
                 onClick = { onSetMatch(left.id, right.id) },
             )
         }
@@ -372,15 +451,26 @@ private fun ClozeControls(
     q: ClozeQuestion,
     answers: Map<String, String>,
     onSetCloze: (String, String) -> Unit,
+    locked: Boolean,
 ) {
     q.blanks.keys.forEach { blankId ->
         Text("Blank · $blankId", style = MaterialTheme.typography.labelSmall)
         val choices = (q.choices + q.blanks.getValue(blankId)).distinct()
+        val accepted = q.blanks.getValue(blankId).map { it.lowercase() }.toSet()
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             choices.forEach { choice ->
+                val selected = answers[blankId] == choice
+                val tone = when {
+                    !locked -> if (selected) AnswerRowTone.Selected else AnswerRowTone.Neutral
+                    choice.lowercase() in accepted -> AnswerRowTone.Correct
+                    selected -> AnswerRowTone.Incorrect
+                    else -> AnswerRowTone.Neutral
+                }
                 NeonAnswerRow(
                     text = choice,
-                    selected = answers[blankId] == choice,
+                    selected = selected,
+                    tone = tone,
+                    enabled = !locked,
                     onClick = { onSetCloze(blankId, choice) },
                 )
             }

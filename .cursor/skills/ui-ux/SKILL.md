@@ -31,7 +31,7 @@ Honour **Neon Glass** (dark midnight, electric blue/cyan, frosted glass, restrai
 ## Card-loop UX (product)
 
 1. Prompt (+ code) and answer controls together  
-2. Submit → immediate grade + explanation (stronger wrong-state; correct auto-advances)  
+2. Submit → same-screen grade (green correct / red wrong on answers + banner); sticky Check becomes Continue  
 3. One sticky primary bottom action; leave via top close  
 4. `order`: drag whole rows
 
